@@ -21,6 +21,20 @@ python extract_pdf_text.py
 - `data_text/`：每份 PDF 對應的文字檔
 - `data_text_pages.jsonl`：每頁一筆資料，包含 `source`、`page`、`text`
 
+若要先將含中文的講義頁面翻成英文，再把「原文 + 英文翻譯」一起存入 JSONL，可執行：
+
+```powershell
+python extract_pdf_text.py --translate-chinese
+```
+
+翻譯模式會額外產生：
+
+- `original_text`：PDF 抽出的原文
+- `translated_text`：Google Translate 產生的英文翻譯，只有含中文頁面才會出現
+- `text`：原文加英文翻譯，後續 TF-IDF 會使用這個欄位檢索
+
+翻譯結果會暫存在 `translation_cache.json`，避免重複執行時一直呼叫 Google Translate。此檔案不需上傳 GitHub。
+
 ## 2. TF-IDF 檢索
 
 ```powershell
