@@ -203,7 +203,7 @@ def answer_extractive(
     )
 
 
-def answer_with_openai(question: str, context: str, model: str) -> str:
+def answer_with_openai(question: str, context: str, model: str, allow_general_answer: bool) -> str:
     try:
         from openai import OpenAI
     except ImportError as error:
@@ -213,17 +213,28 @@ def answer_with_openai(question: str, context: str, model: str) -> str:
         raise SystemExit("OPENAI_API_KEY is not set.")
 
     client = OpenAI()
+    if allow_general_answer:
+        system_prompt = (
+            "You answer questions in Traditional Chinese. First use the provided lecture context. "
+            "If the lecture context contains enough information, answer from it and cite source pages. "
+            "If the lecture context does not contain enough information, clearly say that the lecture "
+            "does not provide the answer, then provide a general-knowledge answer under a separate "
+            "label: '一般知識補充（非講義來源）'. Do not pretend that general knowledge came from the lecture."
+        )
+    else:
+        system_prompt = (
+            "You answer questions using only the provided lecture context. "
+            "If the context does not contain the answer, say that the lecture context "
+            "does not provide enough information. Answer in Traditional Chinese. "
+            "Cite the source pages you used."
+        )
+
     response = client.responses.create(
         model=model,
         input=[
             {
                 "role": "system",
-                "content": (
-                    "You answer questions using only the provided lecture context. "
-                    "If the context does not contain the answer, say that the lecture context "
-                    "does not provide enough information. Answer in Traditional Chinese. "
-                    "Cite the source pages you used."
-                ),
+                "content": system_prompt,
             },
             {
                 "role": "user",
@@ -285,6 +296,11 @@ def main() -> None:
     parser.add_argument("--model", default=DEFAULT_MODEL, help="OpenAI model name when --llm openai is used")
     parser.add_argument("--max-context-chars", type=int, default=6000, help="maximum context length")
     parser.add_argument("--max-sentences", type=int, default=3, help="sentences used by extractive answer")
+    parser.add_argument(
+        "--allow-general-answer",
+        action="store_true",
+        help="allow OpenAI mode to answer with general knowledge when lecture context is insufficient",
+    )
     parser.add_argument("--show-context", action="store_true", help="print retrieved context before the answer")
     parser.add_argument("--show-query", action="store_true", help="print translated/expanded query")
     args = parser.parse_args()
@@ -327,7 +343,7 @@ def main() -> None:
         llm_mode = "openai" if os.environ.get("OPENAI_API_KEY") else "extractive"
 
     if llm_mode == "openai":
-        answer = answer_with_openai(question, context, args.model)
+        answer = answer_with_openai(question, context, args.model, args.allow_general_answer)
     else:
         answer = answer_extractive(question, expanded_query, results, args.max_sentences)
 
