@@ -249,8 +249,42 @@ def answer_with_openai(question: str, context: str, model: str, allow_general_an
     return response.output_text
 
 
+def rewrite_query_with_openai(question: str, model: str) -> str:
+    try:
+        from openai import OpenAI
+    except ImportError as error:
+        raise SystemExit("OpenAI package not found. Install it with: pip install openai") from error
+
+    if not os.environ.get("OPENAI_API_KEY"):
+        raise SystemExit("OPENAI_API_KEY is not set.")
+
+    client = OpenAI()
+    response = client.responses.create(
+        model=model,
+        input=[
+            {
+                "role": "system",
+                "content": (
+                    "Rewrite the user's question into a concise retrieval query for searching "
+                    "English NLP lecture slides. Preserve important names, dates, formulas, "
+                    "acronyms, and technical terms. Add likely English synonyms when useful. "
+                    "Return only the rewritten query, with no explanation."
+                ),
+            },
+            {
+                "role": "user",
+                "content": question,
+            },
+        ],
+        max_output_tokens=120,
+    )
+    rewritten_query = " ".join(response.output_text.split())
+    return rewritten_query or question
+
+
 def retrieve(
     question: str,
+    retrieval_query: str,
     data_path: Path,
     top_k: int,
     window_size: int,
@@ -260,7 +294,7 @@ def retrieve(
     pages = load_pages(data_path)
     documents = build_page_windows(pages, window_size)
     doc_vectors, idf = build_tfidf_vectors(documents)
-    expanded_query = prepare_query(question, translator)
+    expanded_query = prepare_query(retrieval_query, translator)
     results = search(expanded_query, documents, doc_vectors, idf, top_k, allow_overlap)
 
     if is_course_info_question(question, expanded_query):
@@ -294,6 +328,12 @@ def main() -> None:
         help="answer generation mode",
     )
     parser.add_argument("--model", default=DEFAULT_MODEL, help="OpenAI model name when --llm openai is used")
+    parser.add_argument(
+        "--rewrite-query",
+        choices=["auto", "openai", "none"],
+        default="auto",
+        help="rewrite the user question into a retrieval query before TF-IDF",
+    )
     parser.add_argument("--max-context-chars", type=int, default=6000, help="maximum context length")
     parser.add_argument("--max-sentences", type=int, default=3, help="sentences used by extractive answer")
     parser.add_argument(
@@ -315,8 +355,18 @@ def main() -> None:
     if not question:
         question = input("Question: ").strip()
 
+    llm_mode = args.llm
+    if llm_mode == "auto":
+        llm_mode = "openai" if os.environ.get("OPENAI_API_KEY") else "extractive"
+
+    should_rewrite_query = args.rewrite_query == "openai" or (
+        args.rewrite_query == "auto" and llm_mode == "openai"
+    )
+    retrieval_query = rewrite_query_with_openai(question, args.model) if should_rewrite_query else question
+
     expanded_query, results = retrieve(
         question,
+        retrieval_query,
         args.data,
         args.top_k,
         args.window_size,
@@ -325,6 +375,8 @@ def main() -> None:
     )
 
     if args.show_query:
+        if retrieval_query != question:
+            print(f"Rewritten query: {retrieval_query}")
         print(f"Expanded query: {expanded_query}\n")
 
     if not results:
@@ -337,10 +389,6 @@ def main() -> None:
         print("Retrieved context:")
         print(context)
         print()
-
-    llm_mode = args.llm
-    if llm_mode == "auto":
-        llm_mode = "openai" if os.environ.get("OPENAI_API_KEY") else "extractive"
 
     if llm_mode == "openai":
         answer = answer_with_openai(question, context, args.model, args.allow_general_answer)
