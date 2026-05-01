@@ -14,6 +14,10 @@ TEXT_DIR = Path("data_text")
 JSONL_PATH = Path("data_text_pages.jsonl")
 TRANSLATION_CACHE_PATH = Path("translation_cache.json")
 CHINESE_PATTERN = re.compile(r"[\u4e00-\u9fff]")
+PRIVATE_USE_PATTERN = re.compile(r"[\ue000-\uf8ff]")
+REPLACEMENT_PATTERN = re.compile(r"�")
+REPEATED_QUESTION_PATTERN = re.compile(r"\?{2,}")
+MOJIBAKE_PATTERN = re.compile(r"[閬鞈極蝟餃憯俞憭頂弦貊飛隢靽∟嚗摨芸]")
 
 
 def normalize_text(text: str) -> str:
@@ -24,6 +28,24 @@ def normalize_text(text: str) -> str:
 
 def has_chinese(text: str) -> bool:
     return CHINESE_PATTERN.search(text) is not None
+
+
+def garbled_score(text: str) -> int:
+    return (
+        len(PRIVATE_USE_PATTERN.findall(text))
+        + len(REPLACEMENT_PATTERN.findall(text))
+        + len(REPEATED_QUESTION_PATTERN.findall(text)) * 2
+        + len(MOJIBAKE_PATTERN.findall(text)) * 2
+    )
+
+
+def is_garbled_text(text: str) -> bool:
+    if not text:
+        return False
+
+    score = garbled_score(text)
+    text_length = max(len(text), 1)
+    return score >= 6 or (score / text_length) >= 0.03
 
 
 def load_translation_cache(path: Path) -> dict[str, str]:
@@ -111,17 +133,21 @@ def main() -> None:
             for page_index, page in enumerate(reader.pages, start=1):
                 total_pages += 1
                 text = normalize_text(page.extract_text() or "")
+                is_garbled = is_garbled_text(text)
 
                 if text:
                     total_text_pages += 1
 
                 translated_text = ""
-                if args.translate_chinese:
+                translation_skipped_reason = ""
+                if args.translate_chinese and is_garbled:
+                    translation_skipped_reason = "garbled_text_detected"
+                elif args.translate_chinese:
                     translated_text = translate_to_english(text, translation_cache, args.translation_sleep)
                     if translated_text:
                         total_translated_pages += 1
 
-                searchable_text = combine_original_and_translation(text, translated_text)
+                searchable_text = "" if is_garbled else combine_original_and_translation(text, translated_text)
                 page_texts.append(f"===== Page {page_index} =====\n{searchable_text}")
 
                 record = {
@@ -132,6 +158,11 @@ def main() -> None:
                 }
                 if translated_text:
                     record["translated_text"] = translated_text
+                if is_garbled:
+                    record["is_garbled"] = True
+                    record["garbled_score"] = garbled_score(text)
+                if translation_skipped_reason:
+                    record["translation_skipped"] = translation_skipped_reason
                 jsonl_file.write(json.dumps(record, ensure_ascii=False) + "\n")
 
             output_path = args.text_dir / f"{pdf_path.stem}.txt"
