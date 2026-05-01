@@ -1,0 +1,396 @@
+===== Page 1 =====
+Announcement
+● 期中考
+○ 4/22 (三)14:10 ~ 16:00
+○ 地點：337, 338 (請參考ilearning 公告)
+○ 範圍C1~C5
+○ No open book
+○ 考試開始30分鐘後不得入場
+● Office hour
+○ 4/20 18:30-21:00 at this class
+○ 若有課程相關問題可以前來
+● 期末專題
+● 學習活動（課堂練習）
+
+===== Page 2 =====
+Deep Learning Models
+
+===== Page 3 =====
+Why Move from Traditional NLP to Deep Learning?
+● Traditional NLP relies on hand-crafted features (e.g., Bag-of-Words, TF-IDF).
+○ Formula is designed by human
+● Often fails to capture context, word order, or semantics.
+● Struggles with sarcasm, polysemy (e.g., "bank"), and long-distance
+dependencies.
+● Deep learning allows automatic feature learning from data.
+● Enables more powerful, context-aware models.
+
+===== Page 4 =====
+Why Deep Learning Works Well in NLP
+● Learns word meaning through dense vectors (embeddings).
+● Captures syntax, semantics, and contextual relationships.
+● Scales to large corpora and diverse domains.
+● Enables end-to-end learning from raw input to prediction.
+● Flexible and adaptable across NLP tasks.
+
+===== Page 5 =====
+What to Watch Out for When Using Deep Learning in NLP
+● Data Hungry: Requires large, labeled datasets for training.
+● Computationally Expensive: Needs powerful hardware (GPU/TPU).
+● Interpretability: Deep models are often black boxes.
+● Overfitting: Especially with small or biased data.
+● Ethical Issues: May reproduce or amplify biases in data.
+
+===== Page 6 =====
+Preprocessing Considerations in Deep
+Learning NLP
+
+===== Page 7 =====
+Stemming and Lemmatization
+● Sometimes skipped in DL pipelines due to learned representations
+○ 深度學習模型能學到 running、runs、ran 在空間中複雜關係，強行把它們都砍成 run，反而可能
+破壞了原本細微的語態資訊
+● May still help in low-resource settings or when training from scratch
+○ 如果資料量很小，深度學習模型可能無法自行學到複雜的時態變化，這時或許就可以手動做一
+些處理
+
+===== Page 8 =====
+Stopword Removal
+● Sometimes skipped in DL pipelines due to learned representations
+● May still help in low-resource settings or when training from scratch
+● Optional; models like BERT often benefit from keeping them
+○ 停用詞通常會帶有重要的關係資訊
+○ Ex: “Flight from Paris to London” vs “Flight to Paris from London”
+
+===== Page 9 =====
+Padding and Truncation
+● In Tensorflow, input sequences must all have equal length
+● Use special tokens (e.g., [PAD] or 0)
+● padded_seq = pad_sequences(unpadded_seq)
+● RNNs have trouble “remembering” the past, so it’s usually more useful to
+have padding at the front
+GPU 無法處理這個
+3x?的矩陣，除非將
+batch size改為1
+
+===== Page 10 =====
+Shapes
+● An array containing padded sequences of ints representing sentences will
+have the shape NxT
+● N = # of documents or batch size, T = max document length
+
+===== Page 11 =====
+Embedding
+● Consider a generic task, like trying to predict whether or not a user will
+purchase something on your website
+● One data point you have is how the user got to your site:
+○ Search (e.g. google)
+○ Advertisement
+○ Friend
+● Can you just assign numbers? 0 = Search, 1 = Ad, 2 = Friend? No…
+● One-hot encoding: [1,0,0] = Search, [0,1,0] = Ad, [0,0,1] = Friend
+● If w1 is large/positive, search users are more likely to purchase
+● If w2 is large/negative, ad users are less likely to purchase
+
+===== Page 12 =====
+Same Strategy for NLP
+● Treat each word as a category, and create a big feature vector with one
+position for every possible word, e.g.
+[1,0,0, …, 0] = “a”
+[0,1,0, …, 0] = “aa”
+…
+[0,0,0, …, 1] = “zygote”
+● We can then do our usual WTx + b computation where x = one-hot vector
+
+===== Page 13 =====
+Is One-Hot Encoding Enough?
+● One-hot encoded vectors are not “useful” geometrically
+
+===== Page 14 =====
+Big Picture
+● What we’ve effectively done is created a table / database of word vectors for
+each word - word index is a query into the table
+● We hope that these vectors will have some useful structure (unlike one-hot
+vectors)
+
+===== Page 15 =====
+Other Embedding Approaches
+● Word2Vec
+○ Learn from predicting context
+● GloVe
+○ Learn from word co-occurrence counts
+● Train your own embedding layer
+○ Embedding(V, D) in Keras / PyTorch
+○ Learns embeddings directly from your task data
+● FastText
+○ Subword-based embedding
+○ Breaks words into character n-grams
+● Contextual Embeddings (BERT, GPT)
+○ Embeddings change based on sentence context
+
+===== Page 16 =====
+CNN x NLP
+
+===== Page 17 =====
+1-D Convolution
+● Slide the filter along every position, multiply and add
+
+===== Page 18 =====
+1-D Convolution Example
+● Input sequence
+● Filter
+● Result
+
+===== Page 19 =====
+● Using 1-D convolution
+Convolution on Text
+https://cezannec.github.io/CNN_Text_Classification/
+
+===== Page 20 =====
+1-D Convolutional Kernels
+Note: you don’t have to worry about the width (e.g. embedding size)
+when creating a 1-D Conv layer, just as you don’t need to deal with the
+depth (e.g. input channels in images) when using a 2-D Conv layer
+https://cezannec.github.io/CNN_Text_Classification/
+
+===== Page 21 =====
+Recognizing General Patterns
+Found pattern: a positive thing
+https://cezannec.github.io/CNN_Text_Classification/
+
+===== Page 22 =====
+CNN for Text in Code
+
+===== Page 23 =====
+Layer Output Shape Description
+Input (batch_size, 100) Token ID 序列
+Embedding (batch_size, 100, 50) 詞向量
+Conv1D (32 filters) (batch_size, 98, 32) 區域特徵
+MaxPool1D(3) (batch_size, 32, 32) 降維
+Conv1D (64 filters) (batch_size, 30, 64) 更深層特徵
+MaxPool1D(3) (batch_size, 10, 64) 再降維
+Conv1D (128 filters) (batch_size, 8, 128) 更深層次抽象
+GlobalMaxPool1D (batch_size, 128) 變成固定長度的句子表示
+Dense(1) (batch_size, 1) 預測結果（如情感分類）
+
+===== Page 24 =====
+RNN x NLP
+
+===== Page 25 =====
+Why CNN Is Not Enough
+● CNNs are great for capturing local patterns in text, such as short phrases like
+"not good" or "very happy". But they come with limitations:
+○ CNNs only capture fixed-size n-gram features.
+○ They struggle with long-distance dependencies in language.
+■ Example: “The book I bought yesterday was amazing.” → “book” and “amazing” are far
+apart.
+○ CNNs are position-invariant, meaning they don't inherently understand word order.
+● To model sequence and context over time, we need a model that remembers
+previous inputs—this is where RNNs come in.
+
+===== Page 26 =====
+Recurrent Neural Networks Introduction
+
+===== Page 27 =====
+Recurrent Neural Networks Introduction
+傳遞給下一個時間
+點的自己
+
+===== Page 28 =====
+Why should we use RNNs?
+● Consider classifying words (e.g. parts-of-speech: noun, verb, etc.)
+● Suppose we use an ANN:
+
+===== Page 29 =====
+Problem with ANN
+● Sometimes there can be multiple possible answers, which can only be
+disambiguated with context
+● E.g. “bank” has several meanings
+- Financial institution (maybe higher chance of spam)
+- “River bank” (maybe lower chance of spam)
+- As a verb (and still has multiple meanings)
+
+===== Page 30 =====
+Back to Our Classification Problem - ANN
+
+===== Page 31 =====
+Back to Our Classification Problem -RNN
+
+===== Page 32 =====
+Back to Our Classification Problem -RNN
+
+===== Page 33 =====
+Problem Types RNNs Can Solve
+Many-to-One
+● Definition: Multiple inputs → Single output
+● Examples:
+○ Spam detection
+○ Sentiment analysis
+Many-to-Many
+● Definition: Each input → corresponding output
+● Examples:
+○ Part-of-speech tagging
+○ Time series anomaly detection
+
+===== Page 34 =====
+What Do We Do with h(t)?
+● h(t) is the output of RNN at each time step
+
+===== Page 35 =====
+What Do We Do with h(t)?
+● Many-to-One
+
+===== Page 36 =====
+What Do We Do with h(t)?
+● Many-to-Many
+
+===== Page 37 =====
+What Do We Do with h(t)?
+● Many-to-Many
+Note: the same weights are used at every
+time step for each layer (weight sharing)
+
+===== Page 38 =====
+Other Options for Many-to-One
+● CNN
+● RNN
+Also T x M output, since we have T
+hidden vectors each of size M
+
+===== Page 39 =====
+
+
+===== Page 40 =====
+“Terrible”
+Sentiment: negative
+
+===== Page 41 =====
+Stacking RNN Layers
+● Note: one common mistake is confusing T with M
+● The sequence length (T) is not the same as the
+size of the hidden vectors (M)
+(each circle does not represent a scalar)
+● Normally we would not vary the size of the
+hidden layers (e.g. normally M1 = M2)
+
+===== Page 42 =====
+RNN in Tensorflow
+
+===== Page 43 =====
+Output: Many-to-One
+
+===== Page 44 =====
+Output: Many-to-Many
+
+===== Page 45 =====
+Output: Many-to-Many
+The Dense layer “knows” how to
+handle a single vector and a time
+series of vectors as input
+
+===== Page 46 =====
+Output: Many-to-One (another way)
+
+===== Page 47 =====
+Stacking Layers
+
+===== Page 48 =====
+Easy to Use LSTMs and GRUs (Preview)
+
+===== Page 49 =====
+Modern RNN Units
+● LSTM - Long Short-Term Memory
+● GRU - Gated Recurrent Unit
+● GRU is like a simplified version of the LSTM (less parameters and thus more
+efficient)
+LSTM
+
+===== Page 50 =====
+Limitations of Vanilla RNNs
+● While RNNs can capture word order and dependencies, they have their own
+issues:
+○ Vanishing gradients: Difficult to learn long-range dependencies (early inputs get "forgotten")
+○ Slow to train: Because each step depends on the previous one, RNNs are not parallelizable
+
+===== Page 51 =====
+How Does the Problem Manifest?
+● Ask your simple RNN: “On what day was Albert Einstein born?”
+● By the time the RNN has “read” the whole article, it forgot what was at the
+beginning!
+Vanishing gradients: https://www.youtube.com/watch?v=8z3DFk4VxRo
+
+===== Page 52 =====
+Gated Recurrent Unit (GRU)
+● First and foremost, it has the same “API” as the simpleRNN
+
+===== Page 53 =====
+GRU
+●
+
+===== Page 54 =====
+GRU
+●
+z(t) = update gate vector
+r(t) = reset gate vector
+h(t) = hidden state
+
+===== Page 55 =====
+GRU
+● z(t), r(t), h(t) are all vectors of size M
+● M is a hyperparameter (“number of hidden units / features”)
+● This implies the shape of all the weights
+● Any weight going from x(t) is D x M
+● Any weight going from h(t) is M x M
+● All bias terms are of size M
+
+===== Page 56 =====
+What is the GRU Doing?
+● z(t) = update gate vector
+● “Should I take the new value for h(t), or should I keep the old value, h(t-1)?”
+● Vanishing gradient means the RNN forgets things in the past
+● Now, we can explicitly remember the previous h(t-1) (If z(t) small)
+● If z(t) → 1, then forget h(t-1)
+
+===== Page 57 =====
+Interpreting the GRU
+● (Forget about the reset gate for now)
+
+===== Page 58 =====
+Reset Gate
+● Reset gate → whether to look up old data when generating new hidden state
+● Update gate → whether to update the database now
+
+===== Page 59 =====
+LSTM (Long Short-Term Memory)
+● Think of it as “like the GRU” but with more state vectors and gates
+
+===== Page 60 =====
+GRU vs LSTM
+● Not exactly the same API
+● LSTM returns 2 states:
+○ Hidden state h(t)
+○ Cell state c(t) (usually ignored)
+○ Also means you need 2 initial states: c0 and h0
+Current word
+Short-term memory
+Long-term memory
+
+===== Page 61 =====
+LSTM Equations
+tanh
+tanh
+
+===== Page 62 =====
+Why Output Gate?
+● 為何不直接將ct的值輸出作為ht?
+● 長期記憶通常包含豐富且雜亂的資訊，直接輸出的話下一層會被迫接收大量當
+下根本不需要的雜訊
+● Ex: “Alice 是一個非常優秀的工程師，我昨天在會議上遇到她” （translation task）
+○ 當模型讀到Alice時，ct 會記住兩個特徵：女性、單數
+○ 當模型讀到“是一個非常優秀的工程師...”時，後面的預測層根本不需要知道Alice 是女性這件事
+○ 這時，output gate會關閉對於性別特徵的輸出，不讓它干擾當下的語意判斷
+○ 直到最後讀到”遇到...”，準備要預測代名詞時，output gate才會打開，把ct裡的”女性”特徵釋出到
+ht，讓模型能夠預測出“her。
+
+===== Page 63 =====
+LSTM is Simple

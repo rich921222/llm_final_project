@@ -1,0 +1,3 @@
+pypdf
+deep-translator
+openai

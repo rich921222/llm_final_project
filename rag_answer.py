@@ -1,0 +1,265 @@
+from __future__ import annotations
+
+import argparse
+import os
+import re
+import sys
+from collections import Counter
+from pathlib import Path
+
+from tfidf_search import (
+    DATA_PATH,
+    TOP_K,
+    WINDOW_SIZE,
+    build_page_windows,
+    build_tfidf_vectors,
+    load_pages,
+    prepare_query,
+    search,
+    tokenize,
+)
+
+
+DEFAULT_MODEL = "gpt-4.1-mini"
+SENTENCE_PATTERN = re.compile(r"(?<=[.!?。！？])\s+|\n+|●|○|- ")
+
+
+def build_context(results: list[tuple[float, dict[str, object]]], max_chars: int) -> str:
+    chunks: list[str] = []
+    current_length = 0
+
+    for score, document in results:
+        source = str(document["source"])
+        for page in document["pages"]:
+            page_number = int(page["page"])
+            text = " ".join(str(page["text"]).split())
+            block = f"[{source} page {page_number}, score={score:.4f}]\n{text}\n"
+
+            if current_length + len(block) > max_chars:
+                remaining = max_chars - current_length
+                if remaining > 200:
+                    chunks.append(block[:remaining])
+                return "\n".join(chunks)
+
+            chunks.append(block)
+            current_length += len(block)
+
+    return "\n".join(chunks)
+
+
+def collect_sources(results: list[tuple[float, dict[str, object]]]) -> list[str]:
+    seen: set[tuple[str, int]] = set()
+    sources: list[str] = []
+
+    for _score, document in results:
+        source = str(document["source"])
+        for page in document["pages"]:
+            key = (source, int(page["page"]))
+            if key in seen:
+                continue
+            seen.add(key)
+            sources.append(f"{source} page {page['page']}")
+
+    return sources
+
+
+def split_candidate_sentences(context: str) -> list[str]:
+    sentences: list[str] = []
+
+    for sentence in SENTENCE_PATTERN.split(context):
+        sentence = " ".join(sentence.split())
+        if len(sentence) < 12:
+            continue
+        if sentence.startswith("[") and sentence.endswith("]"):
+            continue
+        sentences.append(sentence)
+
+    return sentences
+
+
+def iter_evidence_sentences(
+    results: list[tuple[float, dict[str, object]]],
+) -> list[tuple[float, str, int, str]]:
+    evidence: list[tuple[float, str, int, str]] = []
+
+    for retrieval_score, document in results:
+        source = str(document["source"])
+        for page in document["pages"]:
+            page_number = int(page["page"])
+            for sentence in split_candidate_sentences(str(page["text"])):
+                evidence.append((retrieval_score, source, page_number, sentence))
+
+    return evidence
+
+
+def answer_extractive(
+    question: str,
+    expanded_query: str,
+    results: list[tuple[float, dict[str, object]]],
+    max_sentences: int,
+) -> str:
+    query_terms = Counter(tokenize(expanded_query))
+    if not query_terms:
+        return "我找不到足夠的關鍵詞來回答這個問題。"
+
+    scored_sentences: list[tuple[float, int, str, int, str]] = []
+    for index, (retrieval_score, source, page_number, sentence) in enumerate(iter_evidence_sentences(results)):
+        sentence_terms = Counter(tokenize(sentence))
+        if not sentence_terms:
+            continue
+        overlap_score = sum(query_terms[term] * sentence_terms.get(term, 0) for term in query_terms)
+        score = overlap_score * (1.0 + retrieval_score)
+        if score > 0:
+            scored_sentences.append((score, index, source, page_number, sentence))
+
+    if not scored_sentences:
+        return "我在檢索到的講義內容中找不到明確答案。"
+
+    scored_sentences.sort(key=lambda item: (-item[0], item[1]))
+    selected = sorted(scored_sentences[:max_sentences], key=lambda item: item[1])
+    evidence_lines = [
+        f"- {sentence}（{source} page {page_number}）"
+        for _score, _index, source, page_number, sentence in selected
+    ]
+
+    return (
+        "根據檢索到的講義內容，最相關的答案依據是：\n"
+        + "\n".join(evidence_lines)
+        + "\n\n"
+        "這是抽取式回答，也就是從講義片段中挑出最相關的句子；如果要更像人類整理後的回答，"
+        "可以使用 --llm openai。"
+    )
+
+
+def answer_with_openai(question: str, context: str, model: str) -> str:
+    try:
+        from openai import OpenAI
+    except ImportError as error:
+        raise SystemExit("OpenAI package not found. Install it with: pip install openai") from error
+
+    if not os.environ.get("OPENAI_API_KEY"):
+        raise SystemExit("OPENAI_API_KEY is not set.")
+
+    client = OpenAI()
+    response = client.responses.create(
+        model=model,
+        input=[
+            {
+                "role": "system",
+                "content": (
+                    "You answer questions using only the provided lecture context. "
+                    "If the context does not contain the answer, say that the lecture context "
+                    "does not provide enough information. Answer in Traditional Chinese. "
+                    "Cite the source pages you used."
+                ),
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"Question:\n{question}\n\n"
+                    f"Lecture context:\n{context}\n\n"
+                    "Please give a concise answer and cite source pages."
+                ),
+            },
+        ],
+    )
+    return response.output_text
+
+
+def retrieve(
+    question: str,
+    data_path: Path,
+    top_k: int,
+    window_size: int,
+    translator: str,
+    allow_overlap: bool,
+) -> tuple[str, list[tuple[float, dict[str, object]]]]:
+    pages = load_pages(data_path)
+    documents = build_page_windows(pages, window_size)
+    doc_vectors, idf = build_tfidf_vectors(documents)
+    expanded_query = prepare_query(question, translator)
+    results = search(expanded_query, documents, doc_vectors, idf, top_k, allow_overlap)
+    return expanded_query, results
+
+
+def main() -> None:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+
+    parser = argparse.ArgumentParser(description="Retrieve lecture pages and answer with a simple RAG pipeline.")
+    parser.add_argument("question", nargs="*", help="question to answer")
+    parser.add_argument("-k", "--top-k", type=int, default=TOP_K, help="number of retrieved page windows")
+    parser.add_argument("--window-size", type=int, default=WINDOW_SIZE, help="number of adjacent pages per document")
+    parser.add_argument("--data", type=Path, default=DATA_PATH, help="path to JSONL page data")
+    parser.add_argument(
+        "--translator",
+        choices=["auto", "google", "dictionary", "none"],
+        default="auto",
+        help="query translation mode for Chinese input",
+    )
+    parser.add_argument("--allow-overlap", action="store_true", help="allow retrieved windows to overlap")
+    parser.add_argument(
+        "--llm",
+        choices=["auto", "extractive", "openai"],
+        default="extractive",
+        help="answer generation mode",
+    )
+    parser.add_argument("--model", default=DEFAULT_MODEL, help="OpenAI model name when --llm openai is used")
+    parser.add_argument("--max-context-chars", type=int, default=6000, help="maximum context length")
+    parser.add_argument("--max-sentences", type=int, default=3, help="sentences used by extractive answer")
+    parser.add_argument("--show-context", action="store_true", help="print retrieved context before the answer")
+    parser.add_argument("--show-query", action="store_true", help="print translated/expanded query")
+    args = parser.parse_args()
+
+    if not args.data.exists():
+        raise SystemExit(f"Data file not found: {args.data}. Run extract_pdf_text.py first.")
+
+    if args.window_size < 1:
+        raise SystemExit("--window-size must be at least 1")
+
+    question = " ".join(args.question).strip()
+    if not question:
+        question = input("Question: ").strip()
+
+    expanded_query, results = retrieve(
+        question,
+        args.data,
+        args.top_k,
+        args.window_size,
+        args.translator,
+        args.allow_overlap,
+    )
+
+    if args.show_query:
+        print(f"Expanded query: {expanded_query}\n")
+
+    if not results:
+        print("我找不到相關講義頁面，因此無法回答。")
+        return
+
+    context = build_context(results, args.max_context_chars)
+
+    if args.show_context:
+        print("Retrieved context:")
+        print(context)
+        print()
+
+    llm_mode = args.llm
+    if llm_mode == "auto":
+        llm_mode = "openai" if os.environ.get("OPENAI_API_KEY") else "extractive"
+
+    if llm_mode == "openai":
+        answer = answer_with_openai(question, context, args.model)
+    else:
+        answer = answer_extractive(question, expanded_query, results, args.max_sentences)
+
+    print("Answer:")
+    print(answer)
+    print()
+    print("Sources:")
+    for source in collect_sources(results):
+        print(f"- {source}")
+
+
+if __name__ == "__main__":
+    main()

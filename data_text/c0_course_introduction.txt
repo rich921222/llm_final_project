@@ -1,0 +1,191 @@
+===== Page 1 =====
+加選規則
+● 加選優先序：
+○ 資工系博士
+○ 資工系碩二
+○ 資工系碩一
+○ 資工系大四
+○ 外系研究生
+○ 外系大四生
+● 有希望加選的同學請於 2/26 (四) 12:00 前寄信至：rogerwu212@gmail.com
+● 助教會再回覆同學是否可以加選
+
+===== Page 2 =====
+Natural Language
+Processing
+
+===== Page 3 =====
+Teacher, I have questions
+Lecturer:
+- Office: science building (理學大樓) 812 room
+- Email: albert.yang@nchu.edu.tw
+TA:
+- 實驗室: science building (理學大樓) 902 room
+- Email: rogerwu212@gmail.com
+Making an appointment through email in advance is highly
+recommended!!
+
+===== Page 4 =====
+Grading policy
+● 期中考 (20%)
+● 期末考 (20%)
+● 課堂練習 (20%)
+● 期末專題（30%）
+● 出席 (10%)
+
+===== Page 5 =====
+Couple of Notes
+● Late assignment submissions
+○ Submission time will be the basis for grading
+○ The maximum score for late submissions is 80 points
+○ Do not withdraw the submission at will
+● Makeup exam
+○ Leave must be completed at least three hours before the class, based on the records in the
+leave system
+○ Must provide valid documents
+○ Midterm exam: grades will be combined with the final exam.
+
+===== Page 6 =====
+What is Natural Language Processing (NLP)
+Machine Learning
+Natural Language
+Processing
+(Text and Speech)
+Computer Vision
+(Image, Video, …)
+Other
+Tabular Data
+Time Series
+RL
+Game Tehory
+
+===== Page 7 =====
+What is Natural Language Processing (NLP)
+Prompt: What is NLP?
+ChatGPT: NLP stands for Natural Language Processing. It is a branch of
+artificial intelligence (AI) that focuses on enabling computers to understand,
+interpret, and generate human language. NLP combines linguistics, machine
+learning, and computer science to process and analyze large amounts of natural
+language data.
+
+===== Page 8 =====
+How is NLP Used?
+● Spam Detection
+
+===== Page 9 =====
+How is NLP Used?
+● Spam Detection
+● Predictive Text
+
+===== Page 10 =====
+How is NLP Used?
+● Spam Detection
+● Predictive Text
+● Speech Recognition
+
+===== Page 11 =====
+How is NLP Used?
+● Spam Detection
+● Predictive Text
+● Speech Recognition
+● Sentimet Analysis
+
+===== Page 12 =====
+Modern Advancement
+● Language Translation
+
+===== Page 13 =====
+Modern Advancement
+● Language Translation
+● Text Generation
+
+===== Page 14 =====
+How NLP Works?
+
+===== Page 15 =====
+NLP Methods
+● Vector-Based Models and Text Processing
+● Probability Models
+● Machine Learning Models
+● Deep Learning Models
+● Large Language Models
+
+===== Page 16 =====
+Vector-Based Models and Text Processing
+● TF-IDF, Word Embedding Models
+● Applications: similarity search, document retrieval, summarization
+
+===== Page 17 =====
+Probability Models
+● Markov Models, N-gram Models, Hidden Markov Models (HMM), Naïve Bayes
+● Applications: Spell correction, auto-completion, speech recognition
+● Prerequisites for Transformers (BERT and GPT-3)
+0.6
+0.1
+0.1
+0.2
+
+===== Page 18 =====
+Machine Learning Models
+Spam Detection
+Uses: email filtering, SMS spam detection,
+phishing detection
+Method: Naive Bayes, SVM, Random Forest
+Sentiment Analysis
+Uses: reputation management, stock market,
+customer feedback
+Method: Logistic Regression, SVM, BERT,
+Random Forest
+Latent Semantic Indexing
+Uses: information retrieval, document
+clustering, search engines
+Method: PCA / SVD
+Topic Modeling
+Uses: legal document classification, news
+categorization, recommendation systems
+Method: Latent Dirichlet Allocation
+● Training is essential for
+ML models
+
+===== Page 19 =====
+Deep Learning Models
+● RNN, LSTM / GRU, Transformer (BERT, GPT-3)
+● Can do any tasks we previously discussed
+
+===== Page 20 =====
+Can ChatGPT Solve Every NLP Task?
+● Specialized tasks require domain-specific models
+○ ChatGPT lacks expertise in medical, legal, and financial fields.
+○ BioBERT, FinBERT outperform general AI in these areas.
+● Privacy & security risks
+○ Public cloud-based AI models pose data privacy concerns.
+○ Local NLP models (e.g., Llama, Mistral) ensure data control.
+● Resource & cost constraints
+○ Running ChatGPT is expensive & resource-intensive.
+○ Task-specific NLP models are faster, cheaper, and more efficient.
+
+===== Page 21 =====
+Syllabus (May Change in the Future)
+Classic NLP Methods:
+- Vector Models and Text
+Processing
+- Probabilistic Models
+- Machine Learning Models
+- Deep Learning Models
+- Large Language Models
+NLP Tasks
+- Sentiment analysis
+- Summarization
+- Text Q&A
+- Text-to-SQL
+- …
+Advanced Topics:
+- RAG
+- AI Agent
+
+===== Page 22 =====
+Schedule
+2026/4/1: no class
+2026/4/8: holiday
+2026/4/22: midterm exam
+2026/6/3: final exam

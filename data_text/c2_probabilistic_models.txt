@@ -1,0 +1,319 @@
+===== Page 1 =====
+Probabilistic Models
+
+===== Page 2 =====
+Introduction to N-Gram Models
+●An N-Gram model predicts words based on the previous N words.
+●Used in speech recognition, autocomplete, translation, and spell checking.
+●Larger N = more context, but higher complexity.
+●Formula:○Unigram (n = 1): P(wn) #只看單字在語料庫中的出現頻率
+○Bigram (n = 2): P(wn|wn-1)
+○Trigram (n = 3): P(wn|wn-1, wn-2)
+●Example: If past sentences include:○“I love NLP” (40%)
+○“I love AI” (30%)
+○“I love programming” (30%)
+○Then P(NLP | I love) = 0.4
+
+===== Page 3 =====
+Where Are N-Gram Models Used?
+●Speech Recognition → Predicts missing words.
+●Autocomplete & Spell Checking → Suggests next words.
+●Machine Translation → Improves word prediction accuracy.
+●Text Generation → Creates realistic sentences.
+
+===== Page 4 =====
+When Calculating the Probability of a Sequence…
+
+===== Page 5 =====
+When Calculating the Probability of a Sequence…
+Calculating this probability can be a
+nightmare when T becomes large
+due to data sparsity
+
+===== Page 6 =====
+The Markov Property
+●The Markov property is a very restrictive assumption on the dependency
+structure of the joint probability
+●The probability of transitioning to the next state depends only on the current
+state, not past states
+●This implies that the joint probability takes the form:
+
+===== Page 7 =====
+The Markov Property
+
+===== Page 8 =====
+Why is the Markov Property Useful?
+●Consider a Markov model of the English language
+●Suppose we choose 2000 of the most common words
+●Suppose we want to get the probability distribution for the 10th word in a
+sentence given the previous nine words
+●Our model is p(x10 | x9, x8, …, x1)
+●Each “x” has 2000 possible values (words)
+●How many probabilities to estimate? 2000 x 2000 x 2000… = 200010
+●Q: Do we have a sufficient amount of data?
+
+===== Page 9 =====
+The Markov “Asumption”
+●We assume the Markov property holds, even when it does not
+●Do “ham” and “Python” only depend on “and”? No!
+●“All models are wrong, but some are useful” - George Box
+
+===== Page 10 =====
+The Markov Model
+●In this section, we’ll consider sequences of categorical symbols, which we’ll
+refer to as “states”
+●Example, weather: {sunny, rainy, cloudy}
+●Example, POS tags: {noun, verb, adjective}
+
+===== Page 11 =====
+Notation
+●We’ll use s for “state”
+●Time will also be discrete (t = 1, 2, ...) (e.g., no such thing as t = 1.5)
+●We’ll number the states from 1, 2, …, M
+●M = total number of possible states (e.g., M = 3 for sunny/rainy/cloudy)
+●We use i or j to index the state space
+
+===== Page 12 =====
+State Distribution
+●We have p(st = 1), p(st = 2), …, p(st = M)
+●This is M probability values - together they form a distribution
+●Ex: “What is the probability that it will be rainy on Sunday?”
+Ans: p(ssunday = rainy)
+
+===== Page 13 =====
+State Transitions
+●“Probability that state at time t is j, given that the state at time t-1 was i”
+●How many of these probability values exist? (for all i and j)
+●Since both i and j can take any value from 1…M, there are M2 values
+
+===== Page 14 =====
+State Transition Matrix
+●A is an MxM matrix
+●Convention: first index (row) = previous state, second index (column) = next
+state
+
+===== Page 15 =====
+State Transition Matrix
+But where is t?
+●In general, we could have Aij(t)
+●When A doesn’t depend on t: time-homogeneous Markov process
+●Note: Natural language is NOT strictly time-homogeneous, but here we drop t
+to prevent parameter explosion and solve the data sparsity issue
+
+===== Page 16 =====
+Initial State
+●To quantify the probability of the first state in a sequence, we use the initial
+state distribution
+
+===== Page 17 =====
+Recap
+●Given A and 𝜋, and a sequence {s1, s2, …, st}, what is a probability of seeing
+that sequence?
+●How do we find A and 𝜋 given a dataset?
+
+===== Page 18 =====
+Probability of a Sequence
+
+===== Page 19 =====
+Training a Markov Model
+●Suppose we flip a coin a bunch of times - how do we estimate p(heads)?
+●That’s just the binary case. What if we have M>2?
+
+===== Page 20 =====
+Estimating A and 𝜋 (Training)
+Note: the ‘hat’
+means ‘estimate’
+N = number of
+sequences in dataset
+Example:
+count(“the cat”) / count(“the”)
+
+===== Page 21 =====
+Probability of a Sequence
+●Only involves multiplication
+●What if one of the value is 0? Transition never appears in training set
+●The result becomes 0!
+
+===== Page 22 =====
+Add-One Smoothing
+●Give a small probability to every possible transition
+●Add a “fake count” of 1 for each (i, j) transition
+Adding M to the denominator ensures
+that each row of A sums to 1
+
+===== Page 23 =====
+Add-One Smoothing
+●We can do this for the initial state distribution too
+
+===== Page 24 =====
+Add-Epsilon Smoothing
+●We can make it more smooth (𝜀 > 1) or less smooth (𝜀 < 1)
+
+===== Page 25 =====
+Computing the Probability of a Sequence
+●This involves multiplying many small numbers together
+●Common to use 20k - 50k vocabulary size in English
+●As you multiply small numbers together, they approach 0!
+●Computers don’t have infinite precision; eventually it just rounds to 0
+●Problematic: what if we want to compare 2 sequences?
+
+===== Page 26 =====
+Working with Log Probabilities
+●Solution: compute log probabilities instead
+●We don’t need the actual probability value, since what we usually want to do
+is compare (e.g., is one sequence more likely than another?)
+
+===== Page 27 =====
+Working with Log Probabilities
+●Since log(AB) = log(A) + log(B)
+●Note: do not compute the product and then take the log (to avoid log(0))
+
+===== Page 28 =====
+Build a Text Classifier Using Markov Models
+
+===== Page 29 =====
+Supervised or Unsupervised?
+●Text classification is an example of supervised learning, but Markov models
+are unsupervised (training data is just text; no labels)
+●Answer: We must apply Bayes’ rule (and build a Bayes classifier)
+
+===== Page 30 =====
+Bayes Classifier
+
+===== Page 31 =====
+Bayes Classifier
+
+===== Page 32 =====
+Maximum A Posteriori (MAP)
+●We have p(poem | author), but we want p (author | poem) (a probability
+distribution)
+●Then we can apply the following decision rule:
+
+===== Page 33 =====
+Apply Bayse Rule (In this example)
+
+===== Page 34 =====
+How to Find the Probability Distribution
+Posterior LiklihoodPrior
+
+===== Page 35 =====
+Simplifying the Decision Rule
+
+===== Page 36 =====
+Simplifying the Decision Rule
+p(poem) can be ignored
+
+===== Page 37 =====
+Simplifying the Decision Rule
+Apply log function
+
+===== Page 38 =====
+Simplifying the Decision Rule
+Can be computed by
+Markov model
+
+===== Page 39 =====
+Maximum Likelihood
+●We can simply take the argmax of the likelihood if the prior is uniform (i.e. we
+have no reason to believe, given no other info, that one author is more likely
+than another)
+If p(author) is uniform
+
+===== Page 40 =====
+Recap
+●We train a separate Markov model for each class
+●Each model gives us p(x | class = k) for all k
+●General form of decision (MAP): k* = argmaxkp(class = k | x)
+●Posterior can be simplified since we don’t need its actual value
+●Simplified MAP: k* = argmaxklogp(x | class = k) + logp(class = k)
+●Maximum likelihood: k* = argmaxklogp(x | class = k)
+
+===== Page 41 =====
+Text Classifier Exercise Prompt
+●You’ll be given poems by 2 authors: Edgar Allan Poe and Robert Frost
+●Build a classifier that can distinguish between the 2 authors
+●Compute train and test accuracy
+●Check for class imbalance, compute F1-score if imbalanced
+
+===== Page 42 =====
+Using Markov Models to Generate Text
+●Classifying text: supervised learning (we have labels)
+●Generating text: unsupervised learning (no labels)
+
+===== Page 43 =====
+Problem with Markov Assumption
+●Recall: the next word only on a single preceding word
+
+===== Page 44 =====
+Extending the Markov Model
+●Instead of depending only on one past state, depend on two
+
+===== Page 45 =====
+2nd-Order Markov Model Implementation
+●This is a 3-D array
+●Its shape is MxMxM = M3
+●3rd-order: M4, 4th-order: M5, etc. This grows exponentially!
+
+===== Page 46 =====
+The Full Model
+
+===== Page 47 =====
+Storing Word Probabilities in Dictionaries
+●We will not use add-one smoothing, so many words will have zero probability
+(and they will simply not appear in the dictionary)
+●Thus, although there will be V words in the vocabulary, the dictionary will not
+store V items
+
+===== Page 48 =====
+Why Use Dictionaries?
+●Sparsity!
+●We use add-one smoothing since many possible transition don’t appear in the
+training corpus
+●This gets worse as the model order gets larger
+●i.e. Transition array will be mostly zeros (out of VxVxV total elements)
+-It’s more efficient to store only the transition which were seen!
+
+===== Page 49 =====
+First Order Transitions
+●Recall: used only to model the 2nd word in each line
+
+===== Page 50 =====
+First Order Transitions
+●Recall: used only to model the 2nd word in each line
+p(cat | the) = 0.05
+Exercise: how would you
+store second-order
+transitions?
+
+===== Page 51 =====
+Sampling from a Probability Dictionary
+●How do we sample words from a dictionary with probabilities stored as
+dictionary values (with words as keys)?
+
+===== Page 52 =====
+Example
+●The area covered by each of these ranges is exactly
+the assigned probabilities (0.2, 0.5, 0.3)
+●Notice: we must calculate the cumulative sum
+0 + 0.2: first boundary
+0.2 + 0.5 = 0.7: second boundary
+0.7 + 0.3 = 1: third boundary
+Start by drawing a
+number x ~ U(0, 1)
+If 0 < x < 0.2, then “a”
+If 0.2 < x < 0.7, then “b”
+If 0.7 < x < 1, then “c”
+
+===== Page 53 =====
+Pros & Cons of Markov Models
+✅
+Advantages:
+●Simple & Efficient → Easy to implement and compute.
+●Interpretable → Probabilities are clear and easy to analyze.
+●Good for structured sequences → POS tagging, DNA sequence analysis.
+❌
+Limitations:
+●Lacks long-term memory → Only considers the current state.
+●Fails with ambiguous words → Struggles when context matters.
+●Neural models (like Transformers) perform better → Capture long-range
+dependencies.

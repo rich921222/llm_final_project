@@ -1,0 +1,396 @@
+===== Page 1 =====
+Topic Modeling
+
+===== Page 2 =====
+What is Topic Modeling?
+●A type of unsupervised machine learning used for text analysis
+●Discovers latent topics in a collection of documents without human
+intervention
+●Helps in organizing, summarizing, and understanding large text corpora
+●Unlike classification, topics are not predefined but are derived from patterns in
+the data
+
+===== Page 3 =====
+Key Topic Modeling Techniques
+Latent Dirichlet Allocation (LDA)
+●The most widely used topic modeling algorithm
+●Assumes each document is a mixture of multiple topics, and each topic is a
+mixture of words
+●Uses Bayesian probability and Dirichlet distribution to infer topic distributions
+●Example use case: Organizing scientific articles into research domains
+(overlapping topics, long text)
+
+===== Page 4 =====
+Key Topic Modeling Techniques
+Non-Negative Matrix Factorization (NMF)
+●Uses matrix factorization to find hidden patterns in textual data
+●Works well for high-dimensional data by breaking text down into meaningful
+components (sparse matrix)
+●Does not assume a probabilistic model like LDA (faster)
+●Example use case: Extracting themes from customer service chat logs
+(non-overlapping topics, short text)
+
+===== Page 5 =====
+Key Topic Modeling Techniques
+Latent Semantic Analysis (LSA)
+●Applies Singular Value Decomposition (SVD) to reduce dimensionality and
+capture topic-word relationships
+●Good for finding synonym relationships and handling noisy data
+●Example use case: Improving search engine results based on contextual
+meaning
+
+===== Page 6 =====
+LDA Overview
+●Probabilistic generative model used for discovering topics in a collection of
+documents
+●Each document is a mixture of multiple topics, and each topic is a distribution
+over words
+●Utilizes Dirichlet priors to control topic distributions
+●Uses Bayesian inference techniques such as Gibbs sampling or
+Variational Inference
+●Requires specifying the number of topics (K) beforehand
+
+===== Page 7 =====
+How LDA Works (High-Level)
+我
+我是誰：
+品種 → 電動人 (topics)
+興趣 → 漫畫、電動
+https://reurl.cc/VzDxj6
+人生地不熟，哪裡適合電動人去呢？
+
+===== Page 8 =====
+Collect Documents
+地區 (Documents) 朋友 (Words)
+
+===== Page 9 =====
+初始狀態 (隨便猜)
+地區 (Documents) 朋友 (Words)地區特性 / 朋友興趣
+(Topics)
+大雄是文青
+靜香是網美
+
+===== Page 10 =====
+Iterative Update
+地區 (Documents) 朋友 (Words)地區特性 / 朋友興趣
+(Topics)
+大雄是文青
+
+===== Page 11 =====
+Iterative Update
+地區 (Documents) 朋友 (Words)地區特性 / 朋友興趣
+(Topics)
+大雄是文青
+電動人 電動人 電動人
+再仔細觀察其他人...
+
+===== Page 12 =====
+Iterative Update
+地區 (Documents) 朋友 (Words)地區特性 / 朋友興趣
+(Topics)
+大雄是電動人
+電動人 電動人 電動人
+
+===== Page 13 =====
+Iterative Update
+地區 (Documents) 朋友 (Words)地區特性 / 朋友興趣
+(Topics)
+大雄是電動人
+電動人 電動人 電動人
+經過多次迭代後，發現光華商場裡
+出現許多電動人，因此定義出：光
+華商場 = 90% 電動人主題
+
+===== Page 14 =====
+Iterative Update
+地區 (Documents) 朋友 (Words)地區特性 / 朋友興趣
+(Topics)
+大雄是電動人
+電動人 電動人 電動人
+Note: 同一個朋友(word)可以出現在不同主題
+例如：Faker出現在光華商場，他代表的是 電動人；但如
+果Faker出現在信義區百貨公司代言手錶，他可能代表
+時尚/商業
+
+===== Page 15 =====
+Iterative Update
+地區 (Documents) 朋友 (Words)地區特性 / 朋友興趣
+(Topics)
+大雄在光華商場的
+標籤為電動人
+電動人 電動人 電動人
+
+===== Page 16 =====
+Iterative Update
+地區 (Documents) 朋友 (Words)地區特性 / 朋友興趣
+(Topics)
+大雄在光華商場的
+標籤為電動人
+電動人 電動人 電動人
+如果我們在一個沒去過的地下街(new
+document)，看到一堆Faker 和研磨在走動
+，雖然我們不知道那是什麼地方，但根據
+LDA可以推測那邊的主題
+
+===== Page 17 =====
+50%: 購物仔
+30%: 電影仔
+15%: 網美
+5%: 電動人
+同樣地，經過多次迭代我們可
+以推論信義區的主題分佈為...
+
+===== Page 18 =====
+Key Concepts in LDA
+●Documents as Topic Mixtures○Example: A research paper might be 60% about AI and 40% about statistics
+●Topics as Word Distributions○Example:
+○Topic 1 (Sports): basketball (0.2), football (0.15), tennis (0.1), player (0.05)...
+○Topic 2 (Technology): AI (0.2), machine (0.15), learning (0.1), neural (0.05)...
+●Dirichlet Distribution○Alpha (α): Controls how documents mix topics
+■High α → Documents contain many topics evenly
+■Low α → Documents are dominated by fewer topics
+○Beta (β): Controls how topics mix words
+■High β → Topics share more words
+■Low β → Topics are more distinct
+
+===== Page 19 =====
+Step-by-Step Process
+1.Initialize topics randomly for words in each document (Dirichlet Distribution).
+2.Iterative topic assignment using Gibbs Sampling
+a.Reassign words to topics based on:
+i.How frequently a topic appears in a document
+ii.How frequently a word appears in a topic across all documents
+3.Repeat until convergence to stabilize topic distributions.
+4.Output final results:
+a.Topic-word distributions (which words belong to which topics)
+b.Document-topic distributions (which topics dominate which documents)
+
+===== Page 20 =====
+Gibbs Sampling
+
+===== Page 21 =====
+Gibbs Sampling
+P(標籤 = 網美 | 其他人的狀態})
+
+===== Page 22 =====
+Gibbs Sampling
+該地區目前的網美比例 + ɑ
+
+===== Page 23 =====
+Gibbs Sampling
+全台北靜香被歸類為網美的次數 + ꞵ
+
+===== Page 24 =====
+API Perspective: Inputs and Outputs
+●Inputs: count vectors (bag of words)
+
+===== Page 25 =====
+API Perspective: Inputs and Outputs
+●2 matrixes as output: topics x words, document x topics
+
+===== Page 26 =====
+API Perspective: Inputs and Outputs
+●2 matrixes as output: topics x words, document x topics
+
+===== Page 27 =====
+API Perspective: Inputs and Outputs
+●2 matrixes as output: topics x words, document x topics
+
+===== Page 28 =====
+API Perspective: Inputs and Outputs
+●2 matrixes as output: topics x words, document x topics
+
+===== Page 29 =====
+The Actual API
+
+===== Page 30 =====
+The Actual API
+
+===== Page 31 =====
+Non-Negative Matrix Factorization (NMF)
+●Factorization-based topic modeling method.
+●Decomposes a document-term matrix into two lower-dimensional matrices.
+●Ensures that all matrix values remain non-negative, making the results easier
+to interpret.
+●Works well with TF-IDF-weighted text representations.
+●Requires predefining the number of topics (K) beforehand.
+
+===== Page 32 =====
+Recommender Systems
+●You want to recommend movies to users, but there many ways
+●Let’s simplify this: a good recommendation is a movie that a user would rate
+highly
+●Recommendation list is simply a list of movies ordered by predicted rating
+●Our task is simple: predict unknown ratings
+
+===== Page 33 =====
+The Rating Matrix
+●M users (rows), N movies (columns) → M x N matrix
+●Important: we don’t know most of the values
+●Why? Just think about how many movies exist. How many have you seen?
+Rated?
+●It’s a sparse matrix
+●Different notion of sparisty from
+TF-IDF (zero vs. missing)
+●Goal: fill in missing values
+
+===== Page 34 =====
+Matrix Factorization
+When we multiply W and H
+together, the result is an MxN
+matrix, with no missing values!
+
+===== Page 35 =====
+How to Find W & H?
+●We “train” ML models by defining a loss function and then finding the values
+of W and H that would minimize that loss
+●E.g. squared error between predictions and true ratings
+
+===== Page 36 =====
+NMF Output
+
+===== Page 37 =====
+Latent Semantic Analysis
+●LSA is just the application of a well-known ML technique (SVD) applied to a
+term-document matrix
+●Just like applying Naive Bayes or Logistic Regression to vectors
+●By studying these techniques, you’ll improve your skills in other areas too
+(e.g. computer vision)
+
+===== Page 38 =====
+Singular Value Decomposition (SVD) Intuition
+●SVD is useful for reducing dimensionality
+●SVD is useful for visualizing your data
+●SVD works by finding the best rotation of your data points
+
+===== Page 39 =====
+Reducing Dimensionality
+●In NLP, data is typically high-dimensional (many columns)
+●Often, # features >> # samples
+●More dimensions = more data to process = more time spent
+●Reduce dimensionality = pipeline is more efficient and fast
+
+===== Page 40 =====
+Example: Reducing Dimensionality
+●Project all the data points down to
+the line
+●The data is described by a single
+variable, size
+●We only need 1 dimension
+
+===== Page 41 =====
+Visualization
+●Visualization is always useful in data science and ML
+●The world is only 3-D, how can we see data that is 1000-D?
+
+===== Page 42 =====
+Rotation
+●To understand how this works, we should think “backwards”
+●Why do we do dimension reduction? We believe our data has smaller number
+of dimensions, but was embedded into a larger dimensional space
+
+===== Page 43 =====
+Embed the 2-D Object in 3-D Space
+A1x2 = [x,y]
+A1x2 x M2x3 + Noise = A’1x3
+M → 旋轉、縮放和傾斜
+Noise → 對每個點加入微小隨機擾
+動，產生 3D 的厚度（雜訊）
+
+===== Page 44 =====
+Different Angles
+Thickness is the noise
+we add
+
+===== Page 45 =====
+After Applying SVD
+●We recover the happy face
+●It’s not at the right orientation, but that’s ok
+SVD found the right
+orientation, and threw away
+the 3rd “noise” dimension
+VT: 找出資料的最佳觀測視角（旋轉空間）
+Σ: 決定每個視角的重要性（大的值是特徵，小的
+值是雜訊）
+丟棄 Σ 中的微小數值後，重新計算出的 Aclean
+就是無雜訊的笑臉
+
+===== Page 46 =====
+Noise Removal
+
+===== Page 47 =====
+What Does LSA Do?
+The “denoised data” is put into
+a documents x topics matrix
+
+===== Page 48 =====
+What Does LSA Do?
+The “denoised data” is put into
+a documents x topics matrix
+The columns are ordered by
+“importance” (left most is
+most important)
+
+===== Page 49 =====
+What Does LSA Do?
+The “denoised data” is put into
+a documents x topics matrix
+The columns are ordered by
+“importance” (left most is
+most important)
+This means when you plot the
+data with 2-dimensions, you’re
+choosing the best 2 dimensions to
+show
+
+===== Page 50 =====
+LSA in Code
+
+===== Page 51 =====
+LSA in Code
+
+===== Page 52 =====
+Choosing the Right Number of Topics
+●Setting too few topics: Oversimplifies the data, leading to broad and
+uninformative topics
+●Setting too many topics: Overfitting, making results harder to interpret
+●Methods to determine optimal topic numbers:
+○Coherence Score
+■Measures how semantically related the top topic words are
+■Higher = more meaningful topics
+○Perplexity Score
+■Measures how well the model predicts unseen data
+■Lower = better generalization
+■Mainly for LDA
+
+===== Page 53 =====
+Coherence Score
+●Are top words in a topic meaningfully related?
+●Example:○High coherence: apple, banana, grape, orange
+○Low coherence: apple, engine, democracy, pillow
+●Computed using word co-occurrence or semantic similarity (e.g., C_v, UMass)
+●Higher is better
+●Good for evaluating topic interpretability
+
+===== Page 54 =====
+Perplexity Score
+●Measures model's ability to predict unseen documents
+●Lower perplexity → better generalization
+●Common in language modeling
+●But:
+○Doesn’t guarantee meaningful or interpretable topics
+○A model with low perplexity can still produce incoherent topics
+●Not always aligned with human judgment
+
+===== Page 55 =====
+Calculating Perplexity Score (skip)
+
+===== Page 56 =====
+Challenges in Topic Modeling
+●Choosing the right number of topics
+●Interpreting abstract topics
+○Topics are probabilistic, not always clear-cut
+●Handling short texts
+○Tweets, chat messages, and fragmented text pose challenges
+●Noise in text
+○Presence of irrelevant words and misspellings affects quality
