@@ -81,6 +81,12 @@ QUERY_TRANSLATIONS = {
     "標記": "token tokens",
     "向量": "vector",
     "特徵": "feature",
+    "tfidf": "tf idf tf-idf term frequency inverse document frequency formula calculate computation",
+    "TFIDF": "tf idf tf-idf term frequency inverse document frequency formula calculate computation",
+    "TF-IDF": "tf idf tf-idf term frequency inverse document frequency formula calculate computation",
+    "計算方法": "formula calculate computation how works",
+    "計算方式": "formula calculate computation how works",
+    "公式": "formula equation",
     "機率": "probability probabilities",
     "概率": "probability probabilities",
     "總可能組合數": "number probabilities possible letters combinations factorial",
@@ -134,6 +140,7 @@ QUERY_TRANSLATIONS = {
 
 
 def tokenize(text: str) -> list[str]:
+    text = re.sub(r"(?i)\btf[-\s]?idf\b", "tf idf", text)
     return [
         token
         for token in (match.group(0).lower() for match in TOKEN_PATTERN.finditer(text))
