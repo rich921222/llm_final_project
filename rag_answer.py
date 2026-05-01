@@ -22,6 +22,34 @@ from tfidf_search import (
 
 DEFAULT_MODEL = "gpt-4.1-mini"
 SENTENCE_PATTERN = re.compile(r"(?<=[.!?。！？])\s+|\n+|●|○|- ")
+COURSE_INFO_SOURCE = "c0_course_introduction.pdf"
+COURSE_INFO_PAGES = 6
+COURSE_INFO_KEYWORDS = {
+    "老師",
+    "教授",
+    "授課",
+    "講師",
+    "教師",
+    "助教",
+    "誰教",
+    "教這門課",
+    "教課",
+    "課程資訊",
+    "課程",
+    "office",
+    "office hour",
+    "辦公室",
+    "信箱",
+    "email",
+    "期中考",
+    "期末考",
+    "考試",
+    "評分",
+    "成績",
+    "加選",
+    "上課",
+    "出席",
+}
 
 
 def build_context(results: list[tuple[float, dict[str, object]]], max_chars: int) -> str:
@@ -45,6 +73,50 @@ def build_context(results: list[tuple[float, dict[str, object]]], max_chars: int
             current_length += len(block)
 
     return "\n".join(chunks)
+
+
+def is_course_info_question(question: str, expanded_query: str) -> bool:
+    combined = f"{question} {expanded_query}".lower()
+    return any(keyword.lower() in combined for keyword in COURSE_INFO_KEYWORDS)
+
+
+def build_course_info_document(pages: list[dict[str, object]], page_count: int) -> dict[str, object] | None:
+    course_pages = [
+        page
+        for page in pages
+        if str(page["source"]) == COURSE_INFO_SOURCE and int(page["page"]) <= page_count
+    ]
+    if not course_pages:
+        return None
+
+    course_pages.sort(key=lambda page: int(page["page"]))
+    return {
+        "source": COURSE_INFO_SOURCE,
+        "start_page": int(course_pages[0]["page"]),
+        "end_page": int(course_pages[-1]["page"]),
+        "pages": course_pages,
+        "text": "\n".join(str(page["text"]) for page in course_pages),
+    }
+
+
+def prepend_result(
+    results: list[tuple[float, dict[str, object]]],
+    score: float,
+    document: dict[str, object],
+) -> list[tuple[float, dict[str, object]]]:
+    source = str(document["source"])
+    start_page = int(document["start_page"])
+    end_page = int(document["end_page"])
+    filtered_results = [
+        (result_score, result_document)
+        for result_score, result_document in results
+        if not (
+            str(result_document["source"]) == source
+            and int(result_document["start_page"]) <= end_page
+            and int(result_document["end_page"]) >= start_page
+        )
+    ]
+    return [(score, document), *filtered_results]
 
 
 def collect_sources(results: list[tuple[float, dict[str, object]]]) -> list[str]:
@@ -179,6 +251,12 @@ def retrieve(
     doc_vectors, idf = build_tfidf_vectors(documents)
     expanded_query = prepare_query(question, translator)
     results = search(expanded_query, documents, doc_vectors, idf, top_k, allow_overlap)
+
+    if is_course_info_question(question, expanded_query):
+        course_info_document = build_course_info_document(pages, COURSE_INFO_PAGES)
+        if course_info_document is not None:
+            results = prepend_result(results, 1.0, course_info_document)
+
     return expanded_query, results
 
 
