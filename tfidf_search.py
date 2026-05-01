@@ -63,6 +63,7 @@ STOPWORDS = {
     "個",
     "一",
     "幾",
+    "誰",
 }
 QUERY_TRANSLATIONS = {
     "自然語言處理": "natural language processing nlp",
@@ -109,6 +110,14 @@ QUERY_TRANSLATIONS = {
     "貝葉斯": "bayes naive bayes",
     "平滑": "smoothing",
     "字典": "dictionary dictionaries",
+    "老師": "teacher lecturer professor instructor albert yang",
+    "教授": "teacher lecturer professor instructor albert yang",
+    "授課老師": "teacher lecturer professor instructor albert yang",
+    "講師": "teacher lecturer professor instructor albert yang",
+    "助教": "ta teaching assistant roger wu",
+    "辦公室": "office room",
+    "信箱": "email",
+    "電子郵件": "email",
 }
 
 
