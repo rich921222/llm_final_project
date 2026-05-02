@@ -56,6 +56,19 @@ def load_dotenv_if_available() -> None:
     try:
         from dotenv import load_dotenv
     except ImportError:
+        env_path = Path(".env")
+        if not env_path.exists():
+            return
+
+        for line in env_path.read_text(encoding="utf-8-sig").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            key = key.strip()
+            value = value.strip().strip('"').strip("'")
+            if not os.environ.get(key):
+                os.environ[key] = value
         return
 
     load_dotenv()
