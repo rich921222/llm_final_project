@@ -1,3 +1,4 @@
 pypdf
 deep-translator
 openai
+python-dotenv

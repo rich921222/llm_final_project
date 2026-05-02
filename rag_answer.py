@@ -52,6 +52,15 @@ COURSE_INFO_KEYWORDS = {
 }
 
 
+def load_dotenv_if_available() -> None:
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        return
+
+    load_dotenv()
+
+
 def build_context(results: list[tuple[float, dict[str, object]]], max_chars: int) -> str:
     chunks: list[str] = []
     current_length = 0
@@ -308,6 +317,7 @@ def retrieve(
 def main() -> None:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
+    load_dotenv_if_available()
 
     parser = argparse.ArgumentParser(description="Retrieve lecture pages and answer with a simple RAG pipeline.")
     parser.add_argument("question", nargs="*", help="question to answer")
