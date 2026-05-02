@@ -53,9 +53,7 @@ COURSE_INFO_KEYWORDS = {
 
 
 def load_dotenv_if_available() -> None:
-    try:
-        from dotenv import load_dotenv
-    except ImportError:
+    def load_dotenv_manually() -> None:
         env_path = Path(".env")
         if not env_path.exists():
             return
@@ -69,9 +67,15 @@ def load_dotenv_if_available() -> None:
             value = value.strip().strip('"').strip("'")
             if not os.environ.get(key):
                 os.environ[key] = value
+
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        load_dotenv_manually()
         return
 
     load_dotenv()
+    load_dotenv_manually()
 
 
 def build_context(results: list[tuple[float, dict[str, object]]], max_chars: int) -> str:
