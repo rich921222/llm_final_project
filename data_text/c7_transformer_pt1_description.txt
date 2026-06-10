@@ -1,0 +1,148 @@
+
+c7_transformer_pt1 圖片詳細說明
+
+Page 2 - Transformer 發展時間線
+展示 Transformer 家族的重要模型演進：
+Transformer(2017) → GPT → BERT → GPT-2 → RoBERTa → ALBERT → GPT-3 → GPT-4。
+強調 Transformer 成為現代 NLP 基礎架構。
+
+Page 6 - Attention Mechanism 直觀概念
+使用台灣降雨熱度圖作為例子。
+紅框圈出最醒目的高降雨區域。
+說明人類觀看圖片時會優先關注重要區域，這就是 Attention 的概念。
+
+Page 7 - 人類記憶模型與 Attention
+將 Attention 類比為人類認知系統：
+Sensory Memory → Attention → Working Memory。
+大量資訊先進入感官記憶，再透過注意力篩選重要資訊。
+
+Page 9 - Seq2Seq Machine Translation
+左圖展示 Encoder-Decoder 架構。
+Encoder 將輸入句子壓縮成 Hidden State。
+Decoder 根據 Hidden State 逐步生成翻譯結果。
+
+Page 10 - Machine Translation without Attention
+RNN Encoder 將整句資訊壓縮到最後一個 Hidden State。
+Decoder 僅依靠單一向量進行翻譯。
+此架構容易遺失長句資訊。
+
+Page 15~16 - Query / Key / Value
+以翻譯系統解釋 Attention。
+Query 代表目前需求。
+Key 代表各輸入特徵。
+Value 代表實際內容。
+最終透過加權平均得到 Context Vector。
+
+Page 18~22 - Attention 計算流程
+展示：
+1. Query 與 Key 計算相似度
+2. Softmax 轉為權重
+3. 權重乘上 Value
+4. 加總形成 Context Vector
+5. Decoder 逐步產生 machine、translation 等輸出
+
+Page 25 - Self-Attention
+句子 "The cat sat"。
+建立 token 表示時，每個 token 同時參考自己與其他 token。
+例如 cat 會觀察 The 與 sat。
+
+Page 26~28 - Multi-Head Attention
+展示多頭注意力概念。
+不同 Head 學習不同語言關係：
+主詞動詞關係、介系詞結構、修飾語關係等。
+最後融合所有 Head 的結果。
+
+Page 31 - BERT 基本架構
+文字輸入先轉換為 Word Embedding。
+經過 BERT Encoder 後產生 Contextual Representation。
+說明 BERT 能利用上下文理解詞意。
+
+Page 36 - BERT 訓練流程
+左側為 Pre-training。
+包含：
+- Masked Language Modeling (MLM)
+- Next Sentence Prediction (NSP)
+
+右側為 Fine-tuning。
+展示問答、NER、分類等任務如何接上 BERT。
+
+Page 38 - BERT Base vs BERT Large
+左圖：BERT Base
+- 12 Encoder Layers
+- 12 Attention Heads
+- 110M Parameters
+
+右圖：BERT Large
+- 24 Encoder Layers
+- 16 Attention Heads
+- 340M Parameters
+
+Page 39 - BERT 開源模型
+列出 Google 發布的多種預訓練模型：
+BERT Base、Large、Chinese、Multilingual 等版本。
+
+Page 40 - BERT Input Representation
+展示 BERT 輸入格式：
+[CLS] Sentence A [SEP] Sentence B [SEP]
+
+由三種 Embedding 相加形成輸入：
+- Token Embedding
+- Segment Embedding
+- Position Embedding
+
+Page 41 - Token Embedding
+展示 Token Embedding 層。
+負責表示詞彙本身特徵。
+尚未包含上下文資訊。
+
+Page 42 - Segment Embedding
+使用 A/B 標記兩個句子。
+協助模型區分句子來源。
+
+Page 43 - Position Embedding
+展示位置編碼。
+補足 Transformer 無法感知序列順序的缺點。
+
+Page 46 - Sentence Classification
+利用 [CLS] Token 進行分類。
+BERT 輸出送入 Linear Classifier。
+適用情緒分析與文件分類。
+
+Page 47 - Token Classification
+每個 Token 接一個分類器。
+適用 NER、Slot Filling 等序列標註任務。
+
+Page 48 - Sentence Pair Classification
+兩句話使用 [SEP] 分隔。
+利用 [CLS] 向量判斷兩句關係。
+適用 NLI、Paraphrase Detection。
+
+Page 50 - BERT 家族演進
+展示：
+BERT → RoBERTa → ALBERT → XLNet → ELECTRA → TinyBERT。
+標示各模型主要改進方向。
+
+Page 51~52 - XLNet Permutation Language Model
+比較：
+BERT MLM 使用 Mask 預測。
+XLNet 使用排列組合預測順序。
+圖中展示不同排列下的預測流程。
+
+Page 53~56 - Transformer-XL
+介紹：
+1. Segment-level Recurrence
+2. Relative Positional Encoding
+
+解決長文本 Context Fragmentation 問題。
+
+Page 57 - RoBERTa 改進
+展示：
+- Dynamic Masking
+- 更大訓練資料
+- 更大 Batch Size
+- 移除 NSP
+
+Page 58~59 - Byte-level BPE
+比較 Character-level BPE 與 Byte-level BPE。
+說明 RoBERTa 使用 UTF-8 Byte 作為基礎單位。
+可支援多語言與 Unicode 字元。

@@ -1,0 +1,102 @@
+
+c7_QA_system 圖片詳細說明
+
+Page 21 - Retrieval Augmented Generation
+圖中展示完整 RAG 流程：
+使用者 Query 先送入 Embedding Model 轉換成向量，
+向量送入 Vector Database 中進行 Nearest Neighbor Search。
+系統找出最相似的文件片段後，與原始問題一起送入 LLM。
+LLM 最終產生 Response。
+此圖強調 RAG = Retrieval + Generation。
+
+Page 22 - Vector Database 在 RAG 中的位置
+與前頁相同架構，但特別用紅框標示 Vector Database。
+說明向量資料庫是 RAG 的核心元件，負責儲存文件向量並支援相似度搜尋。
+
+Page 26 - Document Understanding
+展示文件版面分析範例。
+紅色箭頭標示人類閱讀順序為「由左至右、由上至下」。
+圖中包含標題、段落與多欄內容，說明文件理解的重要性。
+
+Page 27 - 雙欄論文範例
+展示真實學術論文版面。
+目的在說明若直接 OCR 擷取文字，容易破壞閱讀順序。
+
+Page 28 - Reading Order 問題
+紅框標出同一行內容。
+說明系統必須判斷哪些文字屬於同一列，而不是單純依照座標排序。
+
+Page 29 - 版面分析流程
+右側圖示將頁面切成多個區塊。
+流程包含：
+1. Block Detection
+2. Element Classification
+3. Reading Order Determination
+4. Structured Output
+
+Page 30 - Block Detection / Segmentation
+使用 Bounding Box 將頁面切割成多個矩形區域。
+此階段只知道哪裡有內容，不知道內容類型。
+
+Page 31 - Element Classification
+系統將區塊分類為：
+Title、Paragraph、Figure、Table、Caption 等。
+圖中使用不同顏色標記不同元素。
+
+Page 32 - Reading Order Determination
+利用箭頭表示閱讀路徑。
+說明文件閱讀順序不一定是單純由左到右，而需符合人類閱讀習慣。
+
+Page 34 - Structured Output
+左側展示 JSON 結構化格式。
+右側展示 Markdown 結構化格式。
+強調結構化輸出有助於 Chunking 與 LLM 使用。
+
+Page 37 - Chunking
+右側顯示同一文件被切成多個 Chunk。
+說明 Chunk 太大或太小都會影響檢索品質。
+
+Page 39 - Embeddings
+展示文字與圖片轉換為向量的流程。
+文字透過 NLP 模型產生 Text Embeddings。
+圖片透過 CNN 或 Vision Transformer 產生 Image Embeddings。
+
+Page 40 - Multimodal Vector Database
+介紹 CLIP 模型。
+圖中展示 Text Encoder 與 Image Encoder 映射到共同向量空間。
+可支援跨模態搜尋。
+
+Page 41 - Image Querying
+輸入狗的圖片。
+經 CLIP 產生向量後到 Vector DB 搜尋。
+回傳語意相似圖片。
+
+Page 42 - Text Querying
+輸入文字「dog in grassland」。
+轉換成向量後搜尋圖片資料庫。
+回傳符合描述的狗圖片。
+
+Page 46~47 - HNSW
+展示 Hierarchical Navigable Small World 圖結構。
+高層負責全域搜尋。
+低層負責細節搜尋。
+查詢時逐層接近目標向量。
+
+Page 48~49 - IVF
+利用 K-means 將向量空間切成多個 Cell。
+搜尋時僅檢查最相關區域。
+降低搜尋成本。
+
+Page 50~51 - Product Quantization
+高維向量切分成多個子向量。
+各子向量量化後形成壓縮編碼。
+兼顧儲存空間與搜尋速度。
+
+Page 75 - Modular RAG
+介紹 Search Module、Memory Module 與 Routing Module。
+展示現代 RAG 系統的模組化架構。
+
+Page 79 - GraphRAG
+說明 Local Search 與 Global Search。
+Local Search 使用知識圖譜探索實體關係。
+Global Search 整合多個社群摘要進行全域推理。

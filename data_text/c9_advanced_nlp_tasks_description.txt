@@ -1,0 +1,335 @@
+
+c9_advanced_nlp_tasks 圖片詳細說明
+
+Page 3 - Named Entity Recognition (NER)
+範例句：
+Steve Jobs was the CEO of Apple, headquartered in California.
+
+圖中以不同顏色框選實體：
+- Steve Jobs → PER (Person)
+- Apple → ORG (Organization)
+- California → LOC (Location)
+
+展示 NER 如何將非結構化文字轉換為結構化實體資訊。
+
+Page 4 - NER 挑戰與 BIO 標註
+句子：
+Steve Jobs really liked to wear black turtlenecks.
+
+下方表格展示 BIO 格式：
+- Steve → B-PER
+- Jobs → I-PER
+- 其餘詞 → O
+
+說明實體可能跨越多個 Token。
+
+Page 5 - NER 為何需要上下文
+沿用前頁 BIO 範例。
+右下角特別標示：
+NER 需要結合上下文語意。
+因此 BERT 類模型比傳統模型更具優勢。
+
+Page 6 - NER 模型演進
+流程圖：
+
+BERT
+↓
+Token Embeddings
+↓
+Classifier 或 CRF
+
+展示現代 NER 架構。
+BERT 提供 contextual embedding。
+CRF 負責全序列標籤最佳化。
+
+Page 9 - BIO Format
+句子：
+Steve Jobs was the CEO of Apple headquartered in Silicon Valley
+
+標註：
+- Steve → B-PER
+- Jobs → I-PER
+- Apple → B-ORG
+- Silicon → B-LOC
+- Valley → I-LOC
+
+展示多種實體類型如何共同標記。
+
+Page 15 - Natural Language Inference (NLI)
+介紹 Premise 與 Hypothesis。
+重點為三分類：
+- Entailment
+- Contradiction
+- Neutral
+
+展示 NLI 的基本任務定義。
+
+Page 20~22 - NLI 模型演進
+展示：
+- BERT
+- RoBERTa
+- DeBERTa
+- Flan-T5
+- mT5
+
+說明 NLI 從分類模型演進到生成式模型。
+
+Page 23 - Text Summarization
+比較兩種摘要方式：
+
+Extractive Summarization
+直接擷取原句。
+
+Abstractive Summarization
+重新理解並生成新句子。
+
+Page 26 - PEGASUS
+展示 PEGASUS 的核心概念。
+
+Gap Sentence Generation (GSG)
+
+模型先刪除資訊量最高的句子。
+再根據剩餘文章重建該句。
+
+模擬真實摘要行為。
+
+Page 27 - Gap Sentence Generation 流程
+完整步驟：
+
+1. 計算句子資訊量
+2. 找出關鍵句
+3. 將關鍵句遮蔽
+4. 模型重建內容
+5. 使用 ROUGE / BERTScore 評估
+
+Page 28 - GSG 實例
+全球暖化範例。
+
+模型需從：
+各國政府正在制定新的氣候政策...
+專家建議投資再生能源...
+
+推測出被移除的關鍵句：
+全球暖化導致極端天氣事件頻繁發生。
+
+Page 30 - UL2
+Unified Language Learning。
+
+展示三種預訓練目標共同訓練：
+
+- MLM (BERT)
+- NTP (GPT)
+- Span Corruption (T5)
+
+強化理解與生成能力。
+
+Page 31 - Mixture of Denoising Objectives
+UL2 訓練流程圖：
+
+輸入文本
+↓
+隨機選擇任務
+↓
+破壞文本
+↓
+模型重建
+
+說明多任務預訓練流程。
+
+Page 32 - MLM / NTP / SC 範例比較
+同一句新聞被轉換成三種任務：
+
+MLM
+預測遮蔽詞。
+
+NTP
+預測下一段內容。
+
+SC
+重建整個被遮蔽片段。
+
+展示 UL2 如何同時學習多種能力。
+
+Page 34 - PEGASUS vs UL2
+表格比較兩種摘要模型。
+
+PEGASUS：
+- 高度專精摘要
+- 較精簡
+- 著重關鍵資訊濃縮
+
+UL2：
+- 通用大型模型
+- 保留較完整背景
+- 強調推理與生成能力
+
+Page 39~40 - mBART vs BART
+比較重點：
+
+BART：
+- 僅英文
+- 英文 BPE
+
+mBART：
+- 多語言
+- Shared Vocabulary
+- Language ID Token
+
+展示多語翻譯模型如何共享知識。
+
+Page 41~42 - M2M-100
+圖示比較：
+
+Traditional:
+中文 → 英文 → 法文
+
+M2M-100:
+中文 → 法文
+
+直接翻譯。
+
+避免中介語言造成誤差累積。
+
+Page 45 - LASER Embeddings
+展示跨語言向量空間概念。
+
+"I love you"
+"Je t'aime"
+"我愛你"
+
+三句在向量空間中距離接近。
+
+說明語言無關句向量。
+
+Page 46 - LASER 架構
+流程：
+
+共享詞彙表
+↓
+BiLSTM Encoder
+↓
+Max Pooling
+↓
+1024 維句向量
+↓
+Decoder
+
+強制模型學習語言無關表示。
+
+Page 47 - Bitext Mining
+流程圖：
+
+多語語料
+↓
+LASER Embedding
+↓
+Nearest Neighbor Search
+↓
+Mutual NN 檢查
+↓
+平行語料
+
+用於自動建立翻譯資料集。
+
+Page 48 - Back Translation
+展示低資源語言資料增強流程。
+
+Swahili → English
+↓
+利用英文單語資料
+↓
+生成偽平行語料
+↓
+English → Swahili
+
+提升弱勢語言翻譯品質。
+
+Page 49 - Semantic Similarity 與 Paraphrase Detection
+比較：
+
+Semantic Similarity
+輸出連續分數。
+
+Paraphrase Detection
+輸出 Yes / No。
+
+展示兩者差異。
+
+Page 51 - Bi-Encoder vs Cross-Encoder
+Bi-Encoder：
+句子獨立編碼。
+適合語意搜尋。
+
+Cross-Encoder：
+句子一起輸入。
+適合同義句判斷與 NLI。
+
+Page 52 - Bi-Encoder 架構
+流程圖：
+
+Sentence A → Encoder
+Sentence B → Encoder
+
+共享權重。
+
+最後以 Cosine Similarity 計算相似度。
+
+Page 53 - SBERT
+展示 Sentence-BERT 概念。
+
+BERT
+↓
+Pooling
+↓
+Sentence Embedding
+
+可直接用於：
+- Semantic Search
+- Clustering
+- Retrieval
+
+Page 54 - SimCSE
+介紹 Contrastive Learning。
+
+Positive:
+Entailment 或同一句。
+
+Negative:
+Contradiction 或其他句子。
+
+學習更好的 Sentence Embedding。
+
+Page 55 - Contrastive Learning
+Anchor、Positive、Negative 三元組。
+
+目標：
+拉近正樣本。
+推遠負樣本。
+
+Page 56 - Contrastive Learning 視覺化
+上圖：Step 0
+Contrastive Loss = 2.45
+
+Anchor 與 Positive 距離遠。
+Negative 靠近。
+
+下圖：Step 100
+Contrastive Loss = 0.25
+
+Positive 被拉近。
+Negative 被推遠。
+
+直觀展示對比學習效果。
+
+Page 57 - Dropout as Noise
+SimCSE 核心概念。
+
+同一句：
+"The cat is sleeping on the bed."
+
+兩次經過 BERT。
+因 Dropout 不同得到不同向量。
+
+兩向量形成 Positive Pair。
+
+實現無監督對比學習。

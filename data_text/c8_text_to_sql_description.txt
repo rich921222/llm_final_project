@@ -1,0 +1,160 @@
+
+c8_text_to_sql 圖片詳細說明
+
+Page 3 - Text-to-SQL 基本範例
+展示自然語言到 SQL 的轉換。
+輸入：Show me all employees from the Sales department.
+輸出：SELECT * FROM employees WHERE department='Sales'。
+說明 Text-to-SQL 的核心目標。
+
+Page 6 - Context-Free Grammar (CFG)
+左側展示資料字典與欄位定義。
+中央為自然語言查詢。
+右側為 SQL Query Tree。
+說明利用語法樹解析句子，再映射到 SQL 結構。
+
+Page 8 - Rule-based SQL Assembly
+展示 SQL Query Tree 與最終 SQL。
+自然語言被拆解為：
+SELECT、FROM、WHERE。
+再依規則組裝成完整 SQL。
+
+Page 11~12 - Deep Learning 方法限制
+左下為 Employees 與 Departments 資料表。
+右側展示模型生成的 JOIN SQL。
+紅字標示模型可能錯選資料表名稱或欄位。
+Page 12 進一步展示正確 JOIN 結果表格。
+
+Page 16 - Text-to-SQL 實作流程
+完整流程圖：
+1. Question Understanding
+2. Schema Comprehension
+3. SQL Generation
+
+範例問題：
+找出工作經驗超過5年的員工姓名，並依照經驗排序。
+圖中展示自然語言 → Schema Mapping → SQL 的轉換。
+
+Page 25 - BIRD Dataset：Large Database Values
+問題要求計算表現最差經理的平均薪資。
+資料表中的 salary 為字串格式。
+模型必須先進行字串轉數值再做 AVG。
+展示現實資料庫中的資料品質問題。
+
+Page 26 - BIRD Dataset：External Knowledge Reasoning
+上半部：模型必須知道捷克語 POPLATEK TYDNE 代表 weekly issue。
+下半部：模型需理解哪些帳戶類型符合貸款資格。
+展示 Text-to-SQL 不只是語法轉換，也需要外部知識推理。
+
+Page 27 - BIRD Dataset：Valid Efficiency Score
+比較兩種 SQL。
+上方 SQL 雖正確但執行時間約 22 秒。
+下方 SQL 經優化後僅約 4 秒。
+說明 BIRD 首次引入 SQL 執行效率評估。
+
+Page 29 - Spider 2.0
+排行榜展示不同模型表現。
+重點強調：
+Spider 2.0 包含超過 3000 欄位的大型企業資料庫。
+GPT-4o 成功率約 10%，遠低於 Spider 1.0。
+說明真實世界 Text-to-SQL 的困難度。
+
+Page 30 - Spider vs Spider 2.0
+左側為 Spider。
+SQL 長度較短，結構較單純。
+右側為 Spider 2.0。
+包含大量 JOIN、UNNEST、巢狀查詢與資料處理。
+視覺上直接呈現查詢複雜度差異。
+
+Page 34 - DIN-SQL
+Spider Leaderboard 截圖。
+介紹 DIN-SQL 為不需 Fine-tuning 的 ICL 方法。
+利用 In-Context Learning 提升 Text-to-SQL 表現。
+
+Page 36 - DIN-SQL Failure Analysis
+甜甜圈圖分析 Few-shot Text-to-SQL 錯誤來源。
+最大比例：
+- Schema Linking 37%
+- JOIN 21%
+- GROUP BY 13%
+- Nested Query 13%
+
+說明資料庫結構理解是最大瓶頸。
+
+Page 38 - DIN-SQL 整體架構
+完整四階段流程：
+1. Schema Linking
+2. Classification & Decomposition
+3. SQL Generation
+4. Self-correction
+
+根據問題複雜度分流到不同生成器。
+
+Page 39 - DIN-SQL 模組細節
+左圖展示 Schema Linking。
+識別資料表、欄位與外鍵。
+
+右圖展示 Classification & Decomposition。
+判斷查詢是否包含：
+UNION、INTERSECT、EXCEPT、JOIN 等結構。
+
+Page 42 - XiYan-SQL
+Spider 排行榜截圖。
+介紹阿里巴巴提出的 Multi-Generator Ensemble Framework。
+曾於 Spider 與 BIRD 排名第一。
+
+Page 44 - M-Schema
+展示改良版資料庫 Schema。
+包含：
+- Database ID
+- Tables
+- Columns
+- Examples
+- Foreign Keys
+
+協助 LLM 理解資料庫結構。
+
+Page 45 - M-Schema vs MAC-SQL Schema
+三欄比較：
+DDL Schema
+MAC-SQL Schema
+M-Schema
+
+M-Schema 額外加入：
+資料型態、主鍵、範例值與欄位說明。
+
+Page 47 - Multi-Generator Framework
+展示兩種 Generator：
+1. Fine-tuned Generator
+2. ICL Generator
+
+ICL 使用 Skeleton Similarity。
+Fine-tuned Generator 學習不同 SQL 風格。
+
+Page 48 - Entity Bias 問題
+範例中問題由 China 改為 America。
+模型卻仍輸出 China。
+展示 ICL 容易複製範例 Entity 的問題。
+
+Page 49 - Skeleton Similarity
+先將實體抽換：
+China → <country>
+2020 → <year>
+
+再計算骨架句子的相似度。
+避免 Entity 干擾範例選擇。
+
+Page 51 - Refiner 機制
+候選 SQL 先執行。
+若失敗則交由 Refiner 修正。
+最後由 Fine-tuned Ranking Model 選出最佳 SQL。
+
+Page 52 - XiYan-SQL 整體流程
+完整 Pipeline：
+Retrieval Module
+→ M-Schema
+→ Multi Generators
+→ Refiner
+→ Selector
+
+最終輸出最佳 SQL。
