@@ -1,0 +1,465 @@
+===== Page 1 =====
+Text - to - SQL
+
+===== Page 2 =====
+Introduction
+Text to SQL 是一種自然語言處理（NLP）技術，將使用者輸入的
+自然語言轉換為結構化的 SQL 查詢。透過這項技術，使用者不需
+要學習複雜的 SQL 語法，只需使用日常語言即可與資料庫進行
+互動，讓非技術使用者也能輕鬆查詢資料。
+
+===== Page 3 =====
+
+
+===== Page 4 =====
+01
+方法
+
+===== Page 5 =====
+1. 資料字典（Data Dictionary）
+儲存資料庫結構資訊，幫助 Text-to-SQL 系統理解表、欄位及其關聯關係
+基於規則與模板
+需要專家預先編寫規則，使用語法規則來解析自然語言並生成 SQL
+Field Name Data Type Description Example
+full_name Text Student's official full name Bob
+contact_no Text Student's phone/contact number 0912345678
+curr_address Text Student's current living city Khulna
+
+===== Page 6 =====
+2. 上下文無關文法（Context-Free Grammar, CFG）
+使用遞迴規則來生成語法樹（Parsing Tree）解析自然語言句子，將其轉換為適
+合 SQL 生成的結構化表示，只有符合語法的語句才能被合法產生。
+基於規則與模板
+需要專家預先編寫規則，使用語法規則來解析自然語言並生成 SQL
+“Show the student’s name and contact no who
+lives in Khulna.”
+Fig. 2: Context Free Grammar for SELECT and FROM clause
+
+===== Page 7 =====
+3. 規則庫（Rule Base）
+儲存各種 SQL 生成的規則，根據查詢類型自動應用對應的 SQL 結構
+基於規則與模板
+需要專家預先編寫規則，使用語法規則來解析自然語言並生成 SQL
+Rule ID 類型 語意模式 對應 SQL 結構
+R1 選擇欄位 “show the {column_list}” SELECT {columns}
+R2 查詢表格 預設 students 表 FROM students
+R3 地點條件 “lives in {curr_address}” WHERE curr_address = '{curr_address}'
+
+===== Page 8 =====
+4. 基於data dictionary 和規則庫組裝SQL句子
+基於規則與模板
+需要專家預先編寫規則，使用語法規則來解析自然語言並生成 SQL
+“Show the student’s name and contact no who
+lives in Khulna.”
+
+===== Page 9 =====
+基於規則與模板
+優點：
+● 相同的輸入問題會得到一致的查詢結果，減少查詢生成的變異性
+● 不需要大量的訓練數據、具有較強的可解釋性
+缺點：
+● 維護成本高（需人工添加規則）
+● 難以適應不同的資料庫結構及複雜的問題查詢
+
+===== Page 10 =====
+1. 序列到序列模型（Sequence-to-Sequence, Seq2Seq）
+使用編碼器將輸入的自然語言與資料庫結構轉換為語義表示；使用解碼器根據語
+義表示逐步生成 SQL 語句
+2. Transformer 架構
+Self-Attention 允許模型在處理時關注整個輸入句子，從而更好地理解語境
+；Multi-Head Attention 允許從不同角度學習語義關聯
+基於深度學習
+隨著深度神經網路的興起，Seq2Seq 和 Transformer 架構逐漸取代
+規則方法，能從大量標註資料中自動學習自然語言到 SQL 的映射
+
+===== Page 11 =====
+基於深度學習
+缺點：
+● 需要大量標註資料集，在新的資料庫（無標註數據）上，模型可能無法準確生成
+SQL
+● 如果模型在訓練中沒有見過特定資料庫結構，它可能會錯誤地選擇欄位或表，生
+成符合語法結構，但無法執行的SQL
+List the names of all departments and the
+salaries of all employees in their department.
+JOIN departments d ON e.department_id = d.id;
+employees e
+
+===== Page 12 =====
+基於深度學習
+缺點：
+● 需要大量標註資料集，在新的資料庫（無標註數據）上，模型可能無法準確生成
+SQL
+● 如果模型在訓練中沒有見過特定資料庫結構，它可能會錯誤地選擇欄位或表，生
+成符合語法結構，但無法執行的SQL
+List the names of all departments and the
+salaries of all employees in their department.
+JOIN departments d ON e.department_id = d.id;
+employees e
+
+===== Page 13 =====
+1. 預訓練架構（Pre-training Architectures）
+通過在大規模語料庫上進行訓練，預訓練語言模型學習語言的結構和語義，為後
+續的語言理解和生成任務提供基礎能力
+2. 微調（Fine-tuning）
+通過微調預訓練模型（例如 T5 和 GPT），學會如何將自然語言查詢映射到具體
+的 SQL 查詢上
+基於預訓練語言模型
+預訓練語言模型憑藉強大的語意解析能力，並透過預訓練架構與微調，成為
+新的主流方法，將效能提升到更高的層級
+
+===== Page 14 =====
+優點：
+● 在大規模文本資料上預訓練，具備優秀的語義理解能力
+● 支持零樣本或少樣本學習，能夠快速應用於新場景
+缺點：
+● 訓練與推理成本高
+基於預訓練語言模型
+
+===== Page 15 =====
+1. Prompt Engineering
+● 設計良好的 Prompt 能清楚表達資料庫結構與使用者問題
+● 利用語境理解與上下文能力，生成語法正確且語意準確的 SQL
+2. Fine-tuning
+● 高效微調：僅調整模型少部分參數（Parameter-Efﬁcient Fine-Tuning）
+● 完全微調：調整所有參數，讓模型全面適應特定任務（Fully Fine-Tuning）
+基於大型語言模型
+隨著模型大小和訓練數據的持續增長，預訓練語言模型自然演變為基於
+大型語言模型的方法，透過提示工程和微調展現出更好的能力
+
+===== Page 16 =====
+實作流程
+將使用者的自然語言轉換為對應的
+語義表示，確保生成的 SQL 查詢與
+使用者的意圖一致
+識別資料庫中的表格
+和欄位，確保 SQL 查詢能夠
+正確匹配資料庫架構
+根據前兩個步驟，產生正確
+且可執行的 SQL 查詢
+Schema
+Comprehension SQL GenerationQuestion
+Understanding
+「找出工作經驗超過 5 年的員
+工姓名，並依照工作經驗由高
+到低排序」
+
+===== Page 17 =====
+1. 資料隱私風險
+企業在使用 ChatGPT、GPT-4 API 進行 Text-to-SQL 查詢時，需傳輸資料庫
+Schema、KPI、樣本資料，無法確保敏感訊息不會洩露給 API 供應商（如
+OpenAI、Google）
+2. 複雜資料庫 & 評測基準不足
+現實世界的資料庫結構遠比標準資料集複雜、
+LLM 記憶長度不足，影響 SQL 生成準確性
+3. 缺乏專業領域知識
+LLM 訓練於開放語料庫，無法理解專業 SQL 查詢的領域知識
+目前挑戰
+涉及多表 (200-1000+)、
+須處理複雜查詢（多層嵌套查詢、群組等）
+例如： 大型企業 ERP 系統（如 SAP）擁有上
+萬張關聯資料表，且欄位命名常為無意義的
+縮寫（如 BKPF, BSEG）
+
+===== Page 18 =====
+03
+資料
+集
+
+===== Page 19 =====
+資料集分類
+1. 原始資料集 (Original Datasets)
+● 原生設計就是為了 Text-to-SQL 任務，經過完整設計與標註的資料集。
+● 通常包含：
+○ 完整的 schema（資料庫結構）
+○ 多筆問句與對應的 SQL 查詢（即一筆筆的 instance）
+● 提供標準統計資訊（例：資料庫數量、資料表數量、平均資料列數）
+● 例如：Spider、BIRD
+2. 後期標註資料集 (Post-annotated Datasets)
+● 在原始資料集的基礎上進行改編和標註的資料集
+○ 例如語言翻譯、新的標註格式等，用來符合某些研究或應用的特殊需求
+● 例如：CSpider、Spider-Vietnamese 將原始英文查詢翻譯成其它語言
+
+===== Page 20 =====
+特徵分類
+1. 跨領域資料集（Cross-domain Dataset）
+資料集涵蓋多種不同主題/領域的資料庫（如學校、醫院、公司等），而不是單一類型。
+例如：Spider
+2. 知識增強資料集（Knowledge-augmented Dataset）
+加入額外的領域知識或背景資訊，幫助模型理解專有名詞或進行推理，更準確地生成
+SQL。例如：BIRD、Spider-DK
+3. 上下文依賴資料集（Context-dependent Dataset）
+適用於多輪對話式 SQL 查詢產生，也就是查詢之間具有連貫語意。
+模型必須理解上下文、前文查詢，並正確處理省略或代詞（如「他」、「上次的那個部
+門」）。例如：SParC、CoSQL
+
+===== Page 21 =====
+特徵分類
+4. 穩健性測試資料集（Robustness Dataset）
+用來測試模型在「輸入擾動或語言變體」下的表現，例如：同義詞、語序變化、拼字錯
+誤。
+評估模型是否過度依賴模板或固定格式。例如：ADVETA、Spider-SYN
+5. 跨語言資料集（Cross-lingual Dataset）
+針對非英文語境，測試模型是否能處理多語查詢。例如：CSpider、DuSQL
+
+===== Page 22 =====
+1. 資料來自Wikipedia，雖然在程式和資料庫的數量上較大，但它們只包含簡單的 SQL
+查詢和單一的表格
+2. 主要涉及單一的 SELECT 列（包含簡單的聚合函數）與 WHERE 條件，沒有涉及到更
+複雜的操作，如 JOIN、GROUP BY 或 ORDER BY。
+3. 由於表格結構扁平（資訊都在同一張表裡）且欄位名稱通常與自然語言問題高度重疊，
+模型不需要具備真正的關聯推理能力，只需簡單的關鍵字比對就能答對
+WikiSQL
+
+===== Page 23 =====
+1. 大型、複雜且跨領域的資料集，包含了 200 個資料庫，涵蓋多個表格，10,181 個問題和
+5,693 個複雜的 SQL 查詢
+2. 訓練資料和測試資料來自不同的資料庫，要求模型能夠對新的資料庫和查詢進行泛化
+3. 查詢不再僅僅是單表查詢，而是包含多表JOIN、嵌套查詢等複雜的SQL結構
+● 來自學術與教學資源的資料庫：約 70 個
+● 來自 DatabaseAnswers 的資料庫：約 40 個
+● 來自 WikiSQL 的資料庫：約 90 個
+Spider
+
+===== Page 24 =====
+1. 希望能更好的應對現實世界中規模較大且有噪聲的資料庫，提出了許多新的挑戰，包括
+資料庫中的錯誤數據、自然語言問題與資料庫值之間的外部知識對接
+BIRD
+
+===== Page 25 =====
+BIRD
+需將包含特殊字符的薪水從
+字串轉為浮點數
+來源：Can LLM Already Serve as A Database Interface? A BIg Bench for Large-Scale Database Grounded Text-to-SQLs
+
+===== Page 26 =====
+BIRD
+要求模型能夠推理出哪些帳戶是有資
+格獲得貸款的
+來源：Can LLM Already Serve as A Database Interface? A BIg Bench for Large-Scale Database Grounded Text-to-SQLs
+捷克語的每週發行
+
+===== Page 27 =====
+2. 首次將 SQL 執行效率納入基準（Valid
+Efﬁciency Score, VES），以往的
+Text-to-SQL 模型，只評估：
+● 語法正確（是否能順利執行）
+● 語意正確（是否查到對的資料）
+BIRD
+來源：Can LLM Already Serve as A Database Interface? A BIg Bench for Large-Scale
+Database Grounded Text-to-SQLs
+
+===== Page 28 =====
+3. 除了80個開源的關聯資料庫外，還額外策劃了 15 個隱藏測試集（不公開），以防止 LLM
+背答案作弊 （LLＭ在訓練時幾乎看過網路上所有的公開資料）
+● Kaggle：32 %
+● CTU Prague Relational Learning Repository：48%
+● 自建的20%
+BIRD
+關聯資料庫（Relational Database） 將資料存儲在具有行和
+列的表格中，這些表格稱為關聯（relations），並通過特定的關
+聯規則（不同資料表如何透過外鍵、主鍵來建立連接）來組織和
+管理資料。
+
+===== Page 29 =====
+1. 提供了一個更加真實且複雜的測試，挑戰當前的大型
+語言模型在處理企業級複雜查詢時的能力（包含超過
+3000個欄位的資料庫）
+2. 像 GPT-4o 這樣的廣泛使用模型，在 Spider 2.0 上
+的成功率僅為 10.1%，而在 Spider 1.0 上則達到
+86.6%，這顯示出 Spider 2.0 的挑戰性遠超過
+Spider 1.0
+Spider 2.0
+來源：https://spider2-sql.github.io/
+
+===== Page 30 =====
+Spider vs Spider 2.0
+Spider 自然語言問題與SQL查詢
+Spider2.0 自然語言問題與SQL查詢
+
+===== Page 31 =====
+04
+評估指
+標
+
+===== Page 32 =====
+1. 基於內容匹配的評估指標（Content Matching-based Metrics）
+● Component Matching (CM)
+針對 SQL 查詢的不同部分（SELECT、WHERE、GROUP BY 等），計算其 F1
+score，來評估生成 SQL 與標準 SQL 之間的匹配程度
+● Exact Matching (EM)
+只有當所有 SQL 組件都完全匹配時才視為正確，計算 SQL 完全匹配的比例
+2. 基於執行結果的評估指標（Execution-based Metrics）
+● Execution Accuracy (EX)
+執行預測的 SQL 語句，並與標準 SQL 的執行結果對比，判斷 SQL 是否正確
+● Valid Efﬁciency Score (VES)
+預測 SQL 語句的執行時間與標準 SQL 語句的執行時間之間的對比
+
+===== Page 33 =====
+05
+框架介
+紹
+
+===== Page 34 =====
+● 提供一種更輕量的解法: 不需要 ﬁne-tune，只透過 In-Context-Learning(ICL)，
+可直接應用於現有的 LLM
+DIN-SQL (2023)
+Spider 排行榜 (2025/05/09)
+
+===== Page 35 =====
+1. LLM 雖然強，但在 Text-to-SQL 任務上不如 ﬁne-tune 模型表現好，傳統做法會對模型
+進行很多微調，但 ﬁne-tune 成本高，彈性差。能不能只透過 in-context learning 就讓
+LLM表現好？
+2. Text-to-SQL 其實很需要邏輯思考與步驟清楚，所以如果把任務分解成小任務給模型，有
+沒有辦法提昇推理能力 ?
+研究問題
+
+===== Page 36 =====
+
+
+===== Page 37 =====
+1. 將 text-to-SQL 分解成小任務 (ex: 要用到哪個資料表、哪些欄位、篩選條件) (schema
+linking module)
+2. 然後把每個小任務丟給 LLM 處理，最後拼湊成完整的 SQL query (query classiﬁcation
+and SQL generation)
+3. 如果某一步答案怪怪的，再用 LLM 檢查並修正 (self-correction module)
+方法
+
+===== Page 38 =====
+
+
+===== Page 39 =====
+
+
+===== Page 40 =====
+1. 提供一種更輕量的解法:
+不需要 ﬁne-tune，只透過 in-context-learning，可直接應用於現有的 LLM
+2. 大幅提升 LLM 在 Text-to-SQL 任務中的準確率:
+在 Spider 資料集上的 準確率達到 85.3%，超過 原本最好的 79.9% (2023/04)
+結果
+
+===== Page 41 =====
+1. 需要大量的範例：
+每一種查詢類別都需要對應的範例
+2. 處理成本高：
+以 GPT-4 為例，每處理一個 Spider 資料集的自然語言查詢，大約需要 0.5 美元、60 秒
+處理時間 （呼叫次數多&非平行化的處理步驟）
+3. 可擴展性限制：
+成本與速度問題限制了該方法在大型應用場合的可能性
+遇到的挑戰
+
+===== Page 42 =====
+1. 由阿里巴巴集團提出的多生成器集成 Text-to-SQL 框架
+2. 曾在 Spider 及 Bird 資料集中排名第一
+XiYan-SQL (2024)
+Spider 排行榜 (2025/05/09)
+
+===== Page 43 =====
+1. LLM 常常不知道資料庫欄位之間的關係，或是欄位名稱所代表的意義
+>> 提出 M-Schema 資料庫結構表示方式
+2. ICL 可以生成多種 SQL 但不一定精準，SFT 雖然比較可控但面對比較複雜的問題容易
+產生錯誤
+>> 用多種模型生成再整合結果
+3. 在透過 ICL 做 text-to-sql 時，模型容易受到 entity 的影響
+>> 提出 Skeleton Similarity 策略來做 ICL
+4. LLM 雖強但缺乏可控性 (最終決策)
+>> 使用 ﬁne-tuned 的模型來選出最符合語意的 SQL 碼作為最終結果
+研究問題
+
+===== Page 44 =====
+LLM 常常不知道資料庫欄位之間的關係，或是欄位名稱所代表的意義
+>> 提出 M-Schema 資料庫結構表示方式如下圖
+研究問題 1
+資料庫名稱
+該資料庫包含之資料
+表 & 欄位資訊
+外鍵關聯
+
+===== Page 45 =====
+M-Schema 根據 MAC-SQL Schema 加以改進，M-Schema 相比 MAC-SQL Schema
+多了更豐富的欄位資訊，輸入給 LLM 讓 LLM 更理解資料表的結構關係
+研究問題 1
+
+===== Page 46 =====
+ICL 可以生成多種 SQL 但不一定精準，
+SFT 雖然比較可控但面對比較複雜的問題容易產生錯誤
+*In-Context Learning (ICL) :
+不微調模型，僅透過在 Prompt 中提供範例來讓模型學會目標任務，這種方式彈性大，可以快速應
+用到不同任務，但是輸出結果比較不可控，每次產出的結果可能不同
+研究問題 2
+*Supervised Fine-Tuning (SFT) :
+透過標註過的資料對模型進行微調 這種方式結果較穩定且可控 但當任務太複雜或資料涵蓋不夠全面
+時模型表現可能會下降
+
+===== Page 47 =====
+XiYan-SQL 分別使用 ICL 與 SFT 產生多個 SQL 生成器，這些生成器基於不同風格的
+訓練資料與不同的 Prompt 進行訓練。
+每個生成器產生候選 SQL 後，系統再從中選出最好的結果，從而結合兩種方法的優點
+研究問題 2
+Fine-tuned SQL Generator
+ﬁne-tune有兩階段：
+1. 讓模型學會基本的 text-to-sql 能力
+2. 強化模型產生不同風格 SQL 的能力
+(ex: 同一個句子可以用巢狀或是JOIN寫)
+ICL SQL Generator
+透過 Skeleton Similarity 做 ICL
+原問題： "What’ s the population of China in
+2020?"
+骨架處理後變成: "What’ s the population of
+<country> in <year>?
+再根據此骨架，選出對應範例作為 Prompt 輸入
+
+===== Page 48 =====
+在透過 ICL 做 text-to-SQL 時，模型容易受到 entity 的影響
+研究問題 3
+在以上範例可以發現，模型機械性的複製了 'China' 這個 entity 作為模型的輸出，因為
+LLM 在 ICL 中頃向使用最顯眼的詞彙，所以如果特定 entity 在範例中重複出現，可能
+會讓模型過度強調，反而忽略掉正確的查詢結構
+
+===== Page 49 =====
+XiYan-SQL 提出了 Skeleton-similarity 去除範例中的 entity 來做 ICL
+研究問題 3
+1. 透過 NLTK 這類工具辨識自然語言中的 entities，例如國家、地名、人物等
+2. 把相同類別的 entity 換成統一的標記 例:
+3. 把問題骨架化 例
+4. 把骨架化的句子轉成向量，計算與範例集中其他範例的相似度，選出 Top-K 相似的
+範例做 ICL
+
+===== Page 50 =====
+LLM 雖強但缺乏可控性
+研究問題 4
+雖然 GPT-4、Gemini 等封閉模型可以靠 ICL 得到良好的結果，但無法保證每次生成的
+SQL 是一致且正確的，一般來說會使用 Self-Consistency 來解決每次生成結果不一
+致的問題，但這個方法的計算成本太高，而且有可能最常見的結果是錯誤的
+*Self-Consistency :
+生成多個候選結果後(通常為10到20個)，統計出最常見的來當作最終結果
+
+===== Page 51 =====
+不使用傳統的 Self-Consistency，XiYan-SQL 特別 ﬁne-tune 了一個
+模型來選擇多個候選 SQL：
+把候選 SQL 全部執行一次，先透過 Reﬁner 判斷這些 SQL 執行結果是否正確，最後
+透過 ﬁne-tune 過的模型選出最符合原句語意的一個
+研究問題 4
+*Reﬁner :
+Reﬁner 為 XiYan-SQL 提出的修正模組，每當生成器生成一條候選 SQL，Reﬁner 就
+會去執行 SQL 結果，如果有錯誤則將結果輸入給 LLM 做修正
+
+===== Page 52 =====
+1. Retrieval Module 從使用者輸入中取出 column 及 entity並確定對應哪些 column，最後整理成
+M-Schema
+2. 將使用者輸入的語句與轉換成的 M-Schema 輸入給多個 Generator 產生候選 SQL
+3. 每個 Generator 產生的 SQL 都會經過 Reﬁner 檢查錯誤
+4. 使用 ﬁne-tined 的模型來選出最符合語意的 SQL 碼作為最終結果
+整體流程
+1. 2. 3. 4.
+
+===== Page 53 =====
+1. 若資料庫裡有非常多的表及欄位，可能無法在有限的時間過濾並選出最相關的欄位
+2. XiYan-SQL 需要多個 Generator 各生成一個或數個候選 SQL，再加上修正器、選擇模
+型，整個推理過程中需要多次 LLM 調用，消耗成本巨大
+3. Reﬁner 會依據執行結果來做修正，但如果出錯的原因很隱諱(語意錯誤但語法沒錯)
+reﬁner 可能就無法處理這類問題
+a. Query: 查詢 2020 年所有來自中國的申請者的平均年齡
+b. Generated SQL: SELECT AVG(age) FROM applicants WHERE
+nationality = 'China' ; 忘了加上 AND year = 2020
+c. 語法正確、可以執行，而且也會回傳一個平均值，但那不是使用者真正要的答案
+遇到的挑戰
