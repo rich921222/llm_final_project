@@ -1,0 +1,192 @@
+
+c0_course_introduction 圖片詳細說明
+
+Page 6 - NLP 在 AI 領域中的位置
+圖中展示人工智慧主要領域：
+
+Machine Learning
+├─ Natural Language Processing
+├─ Computer Vision
+├─ Tabular Data
+├─ Time Series
+├─ Reinforcement Learning
+└─ Game Theory
+
+說明 NLP 是 Machine Learning 的重要分支之一。
+
+Page 8 - Spam Detection
+右上圖為電子郵件垃圾信件資料夾。
+顯示 Spam(372)。
+
+右下圖為垃圾簡訊範例。
+
+展示 NLP 在文字分類上的應用。
+目標是自動辨識垃圾郵件與詐騙訊息。
+
+Page 9 - Predictive Text
+上方圖片為手機輸入法自動預測功能。
+
+使用者輸入：
+"I just wanted to ..."
+
+系統自動推薦後續詞彙。
+
+下方圖片展示電子郵件自動補全文字。
+
+說明 NLP 的語言模型可預測下一個最可能出現的詞。
+
+Page 10 - Speech Recognition
+展示四種語音助理設備：
+
+- Amazon Echo
+- Android Assistant
+- Google Home
+- Siri
+
+說明 NLP 與語音辨識結合後，可將語音轉換成文字並理解使用者意圖。
+
+Page 11 - Sentiment Analysis
+上方圖片為股票市場走勢圖。
+
+下方圖片展示三種情緒分類：
+- Positive
+- Neutral
+- Negative
+
+說明 NLP 可分析評論、新聞與社群媒體內容的情緒傾向。
+
+Page 12 - Language Translation
+手機鏡頭對準 STOP 標誌。
+
+系統即時將英文翻譯成其他語言。
+
+展示 OCR + Machine Translation 的應用情境。
+
+Page 13 - Text Generation
+上方為 GitHub Copilot 宣傳圖。
+
+標語：
+"Your AI pair programmer"
+
+下方為 ChatGPT 回答問題的截圖。
+
+展示大型語言模型在：
+- 程式碼生成
+- 問答系統
+- 內容生成
+
+等任務中的應用。
+
+Page 14 - NLP Process Flowchart
+完整 NLP 流程圖：
+
+NLP
+├─ NLU (Natural Language Understanding)
+│   ├─ Sentiment Analysis
+│   └─ Entity Recognition
+└─ NLG (Natural Language Generation)
+    ├─ AI Writing Tools
+    └─ Text Summarization
+
+說明 NLP 可分為理解與生成兩大方向。
+
+Page 16 - Vector-Based Models and Text Processing
+左圖為 Word Embedding 幾何空間。
+
+展示語意關係：
+King - Man + Woman ≈ Queen
+
+以及國家與首都的向量關係：
+France : Paris
+England : London
+Italy : Rome
+
+右圖為知識圖譜或語意網路。
+節點代表實體。
+邊表示實體關係。
+
+說明文字如何被轉換為向量表示。
+
+Page 17 - Probability Models
+句子：
+
+"The students opened their ____"
+
+模型預測候選詞機率：
+- minds → 0.6
+- books → 0.2
+- laptops → 0.1
+- exams → 0.1
+
+紅框特別標示最高機率 0.6。
+
+展示 N-gram 與語言模型如何進行下一詞預測。
+
+Page 18 - Machine Learning Models
+左側表格整理 NLP 任務與演算法：
+
+Spam Detection
+→ Naive Bayes、SVM、Random Forest
+
+Sentiment Analysis
+→ Logistic Regression、SVM、BERT
+
+Latent Semantic Indexing
+→ PCA、SVD
+
+Topic Modeling
+→ LDA
+
+右側紅字強調：
+
+Training is essential for ML models
+
+說明監督式學習的重要性。
+
+Page 19 - Deep Learning Models
+展示 NLP 深度學習演進：
+
+RNN
+→ LSTM / GRU
+→ Transformer
+→ BERT / GPT
+
+說明深度學習已成為現代 NLP 主流方法。
+
+Page 20 - Can ChatGPT Solve Every NLP Task?
+此頁以條列方式說明限制：
+
+1. Domain-specific Models
+   - BioBERT
+   - FinBERT
+
+2. Privacy & Security
+   - Local LLM
+   - Llama
+   - Mistral
+
+3. Cost & Resource Constraints
+
+說明大型模型不一定適合所有任務。
+
+Page 21 - 課程架構總覽
+圖表將課程內容分成三大部分：
+
+Classic NLP Methods
+- Vector Models
+- Probability Models
+- Machine Learning
+- Deep Learning
+- LLM
+
+NLP Tasks
+- Sentiment Analysis
+- Summarization
+- QA
+- Text-to-SQL
+
+Advanced Topics
+- RAG
+- AI Agent
+
+展示整學期課程地圖。

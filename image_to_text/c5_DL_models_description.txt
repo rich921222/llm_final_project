@@ -1,0 +1,587 @@
+
+c5_DL_models_description
+
+Page 3 - Why Move from Traditional NLP to Deep Learning
+比較傳統 NLP 與 Deep Learning。
+
+傳統方法：
+- Bag of Words
+- TF-IDF
+- 人工設計特徵
+
+問題：
+- 無法理解上下文
+- 無法處理詞序
+- 無法捕捉長距離依賴
+
+Deep Learning：
+- 自動學習特徵
+- 能理解語意與上下文
+
+Page 4 - Why Deep Learning Works Well in NLP
+整理 DL 優勢：
+
+- Dense Embedding
+- 語意表示
+- 可處理大型語料
+- End-to-End Learning
+
+Page 5 - Deep Learning Challenges
+列出缺點：
+
+- Data Hungry
+- GPU 需求高
+- Black Box
+- Overfitting
+- Bias 問題
+
+Page 7 - Stemming and Lemmatization
+說明：
+
+深度學習通常不一定需要 Stemming。
+
+例如：
+
+run
+runs
+running
+ran
+
+Embedding 能自動學習彼此關係。
+
+Page 8 - Stopword Removal
+說明：
+
+BERT 類模型通常保留 Stopwords。
+
+例子：
+
+Flight from Paris to London
+Flight to Paris from London
+
+若刪除 from/to 將失去重要資訊。
+
+Page 9 - Padding and Truncation
+圖示：
+
+原始序列：
+[1,2,3,4,5]
+[1,6,7,4,8]
+[1,9,10]
+
+因長度不同無法組 Batch。
+
+Padding 後：
+
+[1,2,3,4,5]
+[1,6,7,4,8]
+[0,0,1,9,10]
+
+形成固定長度矩陣。
+
+特別標註：
+
+GPU 無法直接處理不規則矩陣。
+
+Page 10 - Tensor Shapes
+介紹 NLP 輸入維度。
+
+Shape：
+
+N × T
+
+N：Batch Size
+T：最大句長
+
+Page 11 - Embedding Motivation
+網站購買預測範例。
+
+流量來源：
+
+Search
+Advertisement
+Friend
+
+不能直接編碼：
+
+0、1、2
+
+因此使用：
+
+One-Hot Encoding
+
+Page 12 - One-Hot Encoding for NLP
+每個單字對應一個位置。
+
+例如：
+
+[1,0,0,...] = a
+[0,1,0,...] = aa
+
+形成超高維稀疏向量。
+
+Page 13 - Is One-Hot Encoding Enough?
+左圖：資料點分群。
+
+右圖：
+
+cat
+feline
+airplane
+
+位於超立方體不同角落。
+
+說明：
+
+One-Hot 無法表示語意距離。
+
+Page 14 - Big Picture of Embeddings
+展示 Embedding Space。
+
+cat 與 feline 很接近。
+
+airplane、jet、helicopter 形成另一群。
+
+說明：
+
+Embedding 能表達語意相似性。
+
+Page 15 - Other Embedding Approaches
+整理：
+
+- Word2Vec
+- GloVe
+- FastText
+- BERT Embedding
+- GPT Embedding
+
+Page 16 - CNN x NLP
+開始介紹 CNN 在 NLP 的應用。
+
+Page 17 - 1-D Convolution
+圖中展示卷積核沿序列滑動。
+
+每次取局部區域：
+
+[0,3]
+[3,4]
+[4,5]
+
+進行乘加運算。
+
+Page 18 - 1-D Convolution Example
+輸入：
+
+[1,2,3,2,1]
+
+Filter：
+
+[1,-1]
+
+輸出：
+
+[-1,-1,1,1]
+
+展示卷積運算流程。
+
+Page 19 - Convolution on Text
+句子：
+
+this
+movie
+has
+amazing
+diverse
+characters
+
+每個單字以 Embedding 表示。
+
+卷積核沿時間軸掃描。
+
+Page 20 - 1-D Convolutional Kernels
+圖示說明：
+
+Kernel Height
+= 一次看幾個單字
+
+Kernel Width
+= Embedding 維度
+
+例如：
+
+3-word window
+
+可學習 trigram pattern。
+
+Page 21 - Recognizing General Patterns
+兩個例子：
+
+the good movie
+a fantastic song
+
+卷積核對兩者產生高分。
+
+學到抽象概念：
+
+「正面情緒」
+
+而非特定單字。
+
+Page 22 - CNN for Text in Code
+完整 CNN Pipeline：
+
+Input
+↓
+Embedding
+↓
+Conv1D
+↓
+MaxPooling
+↓
+Conv1D
+↓
+MaxPooling
+↓
+Conv1D
+↓
+GlobalMaxPooling
+↓
+Dense
+
+用於文字分類。
+
+Page 23 - CNN Layer Shapes
+逐層展示維度變化：
+
+Input
+(batch,100)
+
+Embedding
+(batch,100,50)
+
+Conv1D
+(batch,98,32)
+
+MaxPool
+(batch,32,32)
+
+最後：
+
+GlobalMaxPool
+(batch,128)
+
+Dense
+(batch,1)
+
+Page 25 - Why CNN Is Not Enough
+指出 CNN 限制：
+
+只能看局部區域。
+
+例如：
+
+"The book I bought yesterday was amazing"
+
+book 與 amazing 距離太遠。
+
+CNN 難以建立關聯。
+
+Page 26 - RNN Introduction
+展示一般 Neural Network。
+
+節點彼此連接。
+
+尚未包含時間資訊。
+
+Page 27 - RNN Introduction
+加入循環連線。
+
+Hidden State 傳給下一時間點自己。
+
+形成：
+
+Memory Mechanism。
+
+Page 28 - Why Use RNN?
+詞性標註範例。
+
+Input Word
+↓
+Hidden State
+↓
+POS Tag
+
+Page 29 - Problem with ANN
+使用：
+
+bank
+
+作例子。
+
+可能表示：
+
+- 銀行
+- 河岸
+- 動詞 bank
+
+必須依靠上下文判斷。
+
+Page 30 - ANN Classification
+每個單字獨立分類。
+
+無法共享上下文資訊。
+
+Page 31 - RNN Classification
+加入 Hidden State 傳遞。
+
+Word1 的資訊可傳給 Word2。
+
+Page 32 - Long-Range Information Flow
+綠色箭頭展示：
+
+早期資訊一路傳到最後時間點。
+
+形成長期依賴。
+
+Page 33 - Problem Types RNNs Can Solve
+Many-to-One：
+
+多輸入 → 單輸出
+
+例：
+- Sentiment Analysis
+- Spam Detection
+
+Many-to-Many：
+
+每個輸入都有輸出
+
+例：
+- POS Tagging
+- Time Series
+
+Page 34 - Hidden State h(t)
+介紹：
+
+h1
+h2
+h3
+...
+hT
+
+為每個時間點的 Hidden State。
+
+Page 35 - Many-to-One Output
+只取最後一個 Hidden State。
+
+用於：
+
+Sentiment Classification
+
+Page 36~37 - Many-to-Many Output
+每個時間點都輸出。
+
+並強調：
+
+Weight Sharing
+
+所有時間點共用相同權重。
+
+Page 38 - Other Many-to-One Approaches
+比較：
+
+CNN
+vs
+RNN
+
+都能完成分類。
+
+Page 40 - Sentiment Example
+單字：
+
+Terrible
+
+輸出：
+
+Negative
+
+Page 41 - Stacking RNN Layers
+多層 RNN。
+
+重點：
+
+T
+≠
+M
+
+T：序列長度
+
+M：Hidden Dimension
+
+Page 42 - RNN in TensorFlow
+展示 TensorFlow API。
+
+Page 43 - Many-to-One Output
+程式碼實作。
+
+Page 44~45 - Many-to-Many Output
+程式碼與架構圖。
+
+說明 Dense Layer 能處理時間序列輸出。
+
+Page 46 - Alternative Many-to-One
+介紹另一種輸出方式。
+
+Page 47 - Stacking Layers
+展示多層 RNN 堆疊。
+
+Page 48 - Easy-to-Use LSTMs and GRUs
+引出現代 RNN。
+
+Page 49 - Modern RNN Units
+介紹：
+
+LSTM
+GRU
+
+並指出：
+
+GRU = 簡化版 LSTM
+
+參數較少。
+
+Page 50 - Limitations of Vanilla RNNs
+兩大問題：
+
+1. Vanishing Gradient
+2. 無法平行化
+
+Page 51 - Vanishing Gradient Example
+問題：
+
+"On what day was Albert Einstein born?"
+
+讀完整篇文章後。
+
+RNN 已忘記開頭資訊。
+
+Page 52 - GRU
+開始介紹 Gated Recurrent Unit。
+
+與 SimpleRNN API 相容。
+
+Page 54 - GRU Components
+定義：
+
+z(t)
+Update Gate
+
+r(t)
+Reset Gate
+
+h(t)
+Hidden State
+
+Page 55 - GRU Shapes
+所有 Gate 都是 M 維向量。
+
+權重矩陣：
+
+D×M
+M×M
+
+Page 56 - What Is Update Gate?
+Update Gate 決定：
+
+保留舊記憶
+還是
+更新新記憶
+
+若 z→0：
+
+保留舊資訊。
+
+若 z→1：
+
+覆蓋舊資訊。
+
+Page 57 - GRU Interpretation
+圖解 Update Gate 的工作方式。
+
+Page 58 - Reset Gate
+Reset Gate：
+
+決定建立新 Hidden State 時
+
+是否參考舊記憶。
+
+Page 59 - LSTM
+介紹：
+
+Long Short-Term Memory
+
+比 GRU 擁有更多 Gate。
+
+Page 60 - GRU vs LSTM
+LSTM 額外維護：
+
+Cell State c(t)
+
+以及：
+
+Hidden State h(t)
+
+因此需要：
+
+c0
+h0
+
+兩組初始狀態。
+
+Page 61 - LSTM Equations
+展示完整：
+
+Forget Gate
+Input Gate
+Output Gate
+
+數學公式。
+
+Page 62 - Why Output Gate?
+Alice 範例。
+
+句子：
+
+Alice 是優秀工程師，我昨天遇到她。
+
+Cell State 記住：
+
+- 女性
+- 單數
+
+當模型讀到工程師描述時：
+
+性別資訊暫時無用。
+
+Output Gate 關閉。
+
+直到預測代名詞：
+
+her
+
+時再打開。
+
+展示：
+
+Output Gate 控制長期記憶輸出。
+
+Page 63 - LSTM is Simple
+總結：
+
+LSTM 本質上仍是記憶管理機制。
+
+透過 Gate 控制：
+
+- 記住什麼
+- 忘記什麼
+- 何時輸出

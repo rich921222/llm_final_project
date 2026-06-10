@@ -1,0 +1,314 @@
+
+c1_vector_based_models 圖片詳細說明
+
+Page 5 - Letters and Characters
+展示程式語言中的 char 陣列範例。
+說明 NLP 可建立在 Character Level，而不一定是 Word Level。
+字元除了字母外，也包含空白、標點符號與換行符號。
+
+Page 6 - Vocabulary
+下方為文字雲（Word Cloud）。
+中央最大字為 Vocabulary。
+周圍出現 Words、English、Language 等詞。
+說明 Vocabulary 是模型可辨識詞彙的集合。
+
+Page 7 - Corpus
+圖中展示資料層級：
+
+Token
+→ Sentence
+→ Paragraph
+→ Document
+→ Corpus
+
+說明 Corpus 是大量文件的集合，也是機器學習訓練資料來源。
+
+Page 8 - N-Gram
+表格展示：
+Data → 1-gram
+Great information → 2-gram
+I am fine → 3-gram
+Nice to meet you → 4-gram
+
+說明 N-Gram 是連續 N 個 Token 的組合。
+
+Page 9 - What is a Vector?
+右下角為二維向量圖。
+向量從原點指向 (2,4) 附近。
+
+展示 NLP 如何將文字轉換為數值向量。
+
+Page 12 - Spam Detection with Vectors
+紅色與藍色點形成兩群 Cluster。
+中間有一條線性決策邊界。
+
+紅色代表 Spam。
+藍色代表 Non-Spam。
+
+說明向量化後可使用分類器進行分類。
+
+Page 13 - Spam Detection with Vectors
+加入新的未知樣本點。
+透過判斷落在哪一側決定類別。
+
+展示 ML 分類流程。
+
+Page 14 - Organizing Documents
+散點圖出現五個 Cluster。
+
+不同顏色代表不同主題群組。
+
+說明文件向量化後可進行 Clustering。
+
+Page 15 - Is it Possible?
+紅藍點混雜分布。
+
+旁邊標示：
+"What we do not want"
+
+說明真實資料通常無法完美分離。
+需要更好的向量表示方法。
+
+Page 17 - Order Matters
+左圖：Dog Toy
+狗咬玩具。
+
+右圖：Toy Dog
+狗造型玩偶。
+
+展示 Bag of Words 忽略詞序可能造成語意損失。
+
+Page 18 - Bag of Words
+文件內容被倒入袋子。
+袋中單字順序完全打亂。
+
+說明 Bag of Words 只保留詞頻，不保留順序。
+
+Page 20 - Data Format
+展示 NLP 資料表格式。
+
+左欄：Text Inputs
+右欄：Labels
+
+範例標籤：
+Business、Politics、Entertainment、Finance。
+
+Page 21 - Data Format
+紅框特別標示 Text Inputs。
+
+說明 NLP 第一個目標是把文字轉換成數值向量。
+
+Page 22 - Determining Vocabulary Size
+展示 Count Vectorizer 產生的向量。
+
+例如：
+and → 25
+zygote → 3
+
+每個維度對應一個 Vocabulary Word。
+
+Page 23 - A Simple Example
+三篇文件：
+
+I like eggs
+I hate cats
+I like eggs and I like cats
+
+右側轉換成 Count Vector。
+
+欄位：
+and、cats、eggs、hate、I、like
+
+展示 Bag of Words 建立方式。
+
+Page 24 - How Does Counting Help?
+座標軸：
+
+X = Gravity
+Y = Mitochondria
+
+左上群集代表 Biology。
+右下群集代表 Physics。
+
+新文件根據詞頻落點完成分類。
+
+Page 25 - CountVectorizer in Scikit-Learn
+展示程式碼：
+
+vectorizer.fit()
+vectorizer.transform()
+
+以及 fit_transform() 用法。
+
+Page 26 - Normalization
+展示兩種正規化公式：
+
+L2 Normalization：
+x / ||x||
+
+Probability Normalization：
+x / Σxi
+
+解決長短文件造成的詞頻差異。
+
+Page 27 - Before vs After Normalization
+左圖：
+(3,4) 與 (10,20)
+
+向量長度不同。
+
+右圖：
+兩者經 L2 Normalize 後都落在單位圓上。
+
+展示 Cosine Similarity 的基礎概念。
+
+Page 37 - Stopwords
+紅色 STOP 標誌。
+
+象徵：
+the、and、is、of 等常見詞應被移除。
+
+Page 50 - Vector Similarity
+介紹文件搜尋與語意搜尋。
+
+例如：
+King ↔ Queen
+Car ↔ Vehicle
+
+相似詞在向量空間距離較近。
+
+Page 51~57 - Distance & Similarity
+依序介紹：
+
+- Euclidean Distance
+- Cosine Similarity
+- Cosine Distance
+
+比較不同向量距離計算方法。
+
+Page 58 - TF-IDF
+說明 TF-IDF 用於改良 Count Vectorizer。
+
+核心概念：
+常見詞降低權重。
+重要詞提高權重。
+
+Page 63 - TF-IDF Formula
+展示完整公式：
+
+TF × IDF
+
+其中：
+IDF = log(N / N(t))
+
+為課程重要公式。
+
+Page 70 - TF-IDF Recommendation System
+電影推薦流程：
+
+Movie Metadata
+→ TF-IDF
+→ Similarity Calculation
+→ Ranking
+→ Recommendation
+
+展示內容式推薦系統。
+
+Page 71 - Neural Word Embeddings
+比較：
+
+Document Vector
+vs
+Word Vector
+
+強調 Embedding 是單字層級向量表示。
+
+Page 74 - Word2Vec
+介紹兩種訓練方式：
+
+CBOW
+Context → Word
+
+Skip-Gram
+Word → Context
+
+Page 75 - Word2Vec Architecture
+完整 Skip-Gram 神經網路架構。
+
+中心詞進入 Embedding Matrix。
+輸出 Context Word Probability。
+
+展示 Word2Vec 訓練流程。
+
+Page 76 - Embedding Matrix
+表格列出：
+
+King
+Queen
+Apple
+
+及其對應向量。
+
+說明 Embedding Matrix 本質是查表結構。
+
+Page 79 - Learning Word Embeddings with GloVe
+利用 Co-occurrence Matrix。
+
+例如：
+ice 與 cold 經常共同出現。
+ice 與 steam 很少共同出現。
+
+因此學得較相近向量。
+
+Page 80 - Matrix Factorization
+展示 GloVe 使用矩陣分解學習向量。
+
+說明與 Word2Vec 的差異。
+
+Page 83 - Word Analogies
+著名例子：
+
+King - Man + Woman ≈ Queen
+
+展示詞向量語意運算能力。
+
+Page 84 - Word Analogies Examples
+多組語意關係：
+
+France : Paris
+Italy : Rome
+
+Japan : Japanese
+China : Chinese
+
+Man : Woman
+He : She
+
+用於評估 Embedding 品質。
+
+Page 85 - Summary
+總結本章內容：
+
+Text → Vector
+
+包含：
+- Counting
+- TF-IDF
+- Word2Vec
+- GloVe
+
+以及：
+- Tokenization
+- Stopwords
+- Stemming
+- Lemmatization
+
+Page 89~90 - Multilingual Models
+介紹跨語言向量空間。
+
+不同語言透過：
+- Supervised Alignment
+- Unsupervised Alignment
+- Joint Training
+
+映射到共同 Embedding Space。

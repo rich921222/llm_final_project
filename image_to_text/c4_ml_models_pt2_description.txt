@@ -1,0 +1,546 @@
+
+c4_ml_models_pt2_description
+
+Page 2 - What is Topic Modeling
+介紹 Topic Modeling 的基本概念。
+
+重點：
+- Unsupervised Learning
+- 不需要人工標籤
+- 自動從大量文件中發現隱藏主題
+
+與 Classification 不同，
+Topic 並非事先定義，而是由資料自行產生。
+
+Page 3 - Latent Dirichlet Allocation (LDA)
+介紹最常見的 Topic Modeling 方法。
+
+核心概念：
+Document = Topic Mixture
+Topic = Word Distribution
+
+例如：
+論文可能同時包含
+60% AI
+40% Statistics
+
+Page 4 - Non-Negative Matrix Factorization (NMF)
+介紹 NMF。
+
+利用 Matrix Factorization：
+
+Document-Term Matrix
+↓
+W × H
+
+找出隱藏主題。
+
+適合：
+- Sparse Matrix
+- 短文本
+- TF-IDF 特徵
+
+Page 5 - Latent Semantic Analysis (LSA)
+介紹 LSA。
+
+核心技術：
+
+Singular Value Decomposition (SVD)
+
+利用降維發現文件與詞彙間潛在語意關係。
+
+Page 6 - LDA Overview
+整理 LDA 特性：
+
+- Probabilistic Generative Model
+- Dirichlet Prior
+- Gibbs Sampling
+- Variational Inference
+- 需預先指定 Topic 數量 K
+
+Page 7 - How LDA Works (High-Level)
+使用寶可夢主角小智作為比喻。
+
+左側：
+使用者（我）
+
+屬性：
+- 電動人
+- 喜歡漫畫
+- 喜歡遊戲
+
+右側：
+台北城市。
+
+問題：
+
+「人生地不熟，哪裡適合電動人去呢？」
+
+以興趣尋找適合區域。
+
+Page 8 - Collect Documents
+LDA 擬人化範例。
+
+地區 → Documents
+
+朋友 → Words
+
+展示：
+
+光華商場
+信義區
+
+以及：
+
+大雄
+靜香
+
+說明文件與單字的對應關係。
+
+Page 9 - Initial State (Random Guess)
+LDA 初始化。
+
+系統隨機指定 Topic：
+
+大雄 → 文青
+靜香 → 網美
+
+展示 Topic Assignment 初始階段。
+
+Page 10~13 - Iterative Update
+利用多次迭代更新 Topic。
+
+開始時：
+
+大雄 → 文青
+
+觀察更多樣本後：
+
+Faker
+統神
+研磨
+
+皆被標記為：
+
+電動人
+
+最後推論：
+
+光華商場
+≈ 90% 電動人主題
+
+展示 Gibbs Sampling 逐步修正標籤。
+
+Page 14 - Same Word in Different Topics
+說明同一個 Word 可出現在不同 Topic。
+
+例子：
+
+Faker
+
+在光華商場：
+→ 電動人
+
+在信義區代言手錶：
+→ 時尚 / 商業
+
+說明 Topic 具有上下文依賴性。
+
+Page 15 - Word Topic Assignment
+大雄的 Topic Label：
+
+「大雄在光華商場的標籤為電動人」
+
+強調：
+
+Word Topic Assignment
+
+依文件而異。
+
+Page 16 - Topic Inference for New Documents
+若在未知地下街看到：
+
+Faker
+統神
+
+等人。
+
+即使沒去過該地區，
+也可透過 LDA 推測：
+
+這裡屬於電動人主題。
+
+展示 Topic Inference。
+
+Page 17 - Document Topic Distribution
+信義區範例。
+
+主題分布：
+
+50% 購物仔
+30% 電影仔
+15% 網美
+5% 電動人
+
+展示：
+
+Document = Mixture of Topics
+
+Page 18 - Key Concepts in LDA
+整理三大概念：
+
+1. Documents as Topic Mixtures
+2. Topics as Word Distributions
+3. Dirichlet Distribution
+
+並介紹：
+
+Alpha (α)
+Beta (β)
+
+作用。
+
+Page 19 - Step-by-Step LDA Process
+完整流程：
+
+1. Random Initialization
+2. Gibbs Sampling
+3. Iterative Update
+4. Convergence
+
+輸出：
+
+- Topic-Word Distribution
+- Document-Topic Distribution
+
+Page 20 - Gibbs Sampling Formula
+展示完整條件機率公式。
+
+P(zi=k|wi,d)
+
+涉及：
+
+n(d,k)
+n(k,w)
+α
+β
+
+為 LDA 最核心數學公式。
+
+Page 21 - Gibbs Sampling Intuition
+將公式翻譯成人話：
+
+P(標籤=網美 | 其他人的狀態)
+
+說明 Gibbs Sampling 本質是重新估計標籤機率。
+
+Page 22 - Alpha Interpretation
+公式中的：
+
+n(d,k)+α
+
+被解釋為：
+
+「該地區目前的網美比例 + α」
+
+表示文件中的 Topic 比例。
+
+Page 23 - Beta Interpretation
+公式中的：
+
+n(k,w)+β
+
+被解釋為：
+
+「全台北靜香被歸類為網美的次數 + β」
+
+表示 Topic 對 Word 的偏好程度。
+
+Page 24 - API Input
+輸入：
+
+Count Vector (Bag of Words)
+
+圖中展示：
+
+Document-Term Matrix
+
+D1、D2、D3
+
+對應多個單字欄位。
+
+Page 25 - API Output Matrices
+輸出兩個矩陣：
+
+1. Topic × Word
+2. Document × Topic
+
+展示 Topic Modeling API 的資料結構。
+
+Page 26 - Topic × Word Matrix
+長條圖展示：
+
+Topic1
+Topic2
+Topic3
+
+每個 Topic 的重要詞。
+
+例如：
+
+Topic1
+software
+microsoft
+virus
+security
+
+Topic3
+search
+google
+spam
+
+Page 27 - Document × Topic Matrix
+長條圖展示某篇文件的 Topic 比例。
+
+例如：
+
+Topic1 = 70%
+Topic3 = 30%
+
+說明文件由多主題組成。
+
+Page 28 - Topic Interpretation
+根據 Topic 關鍵字推測語意：
+
+Topic1
+→ Microsoft / Virus / Security
+
+Topic3
+→ Google / Search / Spam
+
+展示 Topic Labeling 的過程。
+
+Page 31 - Non-Negative Matrix Factorization (NMF)
+介紹 NMF。
+
+將：
+
+Document-Term Matrix
+
+分解成：
+
+W × H
+
+所有元素皆非負。
+
+容易解釋。
+
+Page 32 - Recommender Systems
+引入推薦系統。
+
+目標：
+
+預測使用者尚未評分電影的分數。
+
+再依預測排序推薦。
+
+Page 33 - Rating Matrix
+展示：
+
+Users × Movies
+
+矩陣。
+
+大部分格子缺值。
+
+形成 Sparse Matrix。
+
+Page 34 - Matrix Factorization
+圖示：
+
+Rating Matrix
+≈
+W × H
+
+乘回來後可填補缺失評分。
+
+Page 35 - Learning W and H
+介紹訓練過程。
+
+Loss Function：
+
+Squared Error
+
+尋找最佳：
+
+W
+H
+
+使誤差最小。
+
+Page 36 - NMF Output
+展示分解結果。
+
+User Latent Features
+Movie Latent Features
+
+共同形成預測評分。
+
+Page 37 - Latent Semantic Analysis
+說明：
+
+LSA = SVD + Term Document Matrix
+
+本質是降維技術。
+
+Page 38 - SVD Intuition
+SVD 功能：
+
+- Dimensionality Reduction
+- Visualization
+
+透過最佳旋轉方向表示資料。
+
+Page 39 - Reducing Dimensionality
+說明高維 NLP 資料特性：
+
+Features >> Samples
+
+降維可提高效率。
+
+Page 40 - Example: Dimensionality Reduction
+將資料投影到一條線。
+
+原本多維資料：
+
+→ 單一 Size 維度
+
+展示 PCA/LSA 的核心想法。
+
+Page 41 - Visualization
+討論：
+
+如何把 1000 維資料視覺化？
+
+引出降維需求。
+
+Page 42 - Rotation
+說明 SVD 的核心概念：
+
+尋找最佳觀測角度。
+
+Page 43 - Embed 2D Object into 3D
+利用笑臉資料示範。
+
+2D 笑臉
+↓
+旋轉 + Noise
+↓
+3D 點雲
+
+產生高維資料。
+
+Page 44 - Different Angles
+展示不同觀測角度。
+
+厚度代表 Noise。
+
+Page 45 - After Applying SVD
+恢復原始笑臉。
+
+SVD：
+
+VT
+→ 找最佳視角
+
+Σ
+→ 判斷重要維度
+
+移除小奇異值後完成去雜訊。
+
+Page 46 - Noise Removal
+展示：
+
+保留主要結構
+移除雜訊維度
+
+達成 Denoising。
+
+Page 47 - What Does LSA Do?
+LSA 將資料轉成：
+
+Document × Topic Matrix
+
+作為新的低維表示。
+
+Page 48 - Topic Importance Ordering
+LSA Topic Columns：
+
+依重要性排序。
+
+左側 Topic 最重要。
+
+Page 49 - Best 2D Projection
+若只畫 2 維圖：
+
+選擇前兩個最重要 Topic。
+
+得到最佳視覺化效果。
+
+Page 50~51 - LSA in Code
+展示 Scikit-Learn 程式碼。
+
+包含：
+
+TruncatedSVD
+Fit
+Transform
+
+實作 LSA。
+
+Page 52 - Choosing Number of Topics
+討論 Topic 數量選擇。
+
+太少：
+Oversimplified
+
+太多：
+Overfitting
+
+介紹：
+
+Coherence Score
+Perplexity Score
+
+Page 53 - Coherence Score
+範例：
+
+高 Coherence：
+apple banana grape orange
+
+低 Coherence：
+apple engine democracy pillow
+
+衡量 Topic 是否有意義。
+
+Page 54 - Perplexity Score
+衡量模型預測能力。
+
+Perplexity 越低越好。
+
+但不保證 Topic 可解釋。
+
+Page 55 - Perplexity Calculation
+介紹計算方式。
+
+課程標示可略過。
+
+Page 56 - Topic Modeling Challenges
+整理實務挑戰：
+
+- Topic 數量選擇
+- Topic 解讀
+- Short Text
+- Noisy Data
+
+為 Topic Modeling 常見問題。

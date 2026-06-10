@@ -1,0 +1,410 @@
+
+c2_probabilistic_models 圖片詳細說明
+
+Page 4 - Chain Rule of Probability
+展示序列機率的完整展開：
+
+p(x1,x2,...,xT)
+= p(x1)p(x2|x1)p(x3|x1,x2)...
+
+下方使用乘積符號表示。
+
+說明語言模型的核心問題是計算整句話的聯合機率。
+
+Page 5 - Data Sparsity Problem
+沿用前頁公式。
+
+紅字指出：
+
+當 T 很大時，
+p(xT|xT-1,...,x1)
+
+幾乎無法估計。
+
+展示資料稀疏問題(Data Sparsity)。
+
+Page 6 - Markov Property
+右側圖示為狀態鏈：
+
+x(t-2)
+→ x(t-1)
+→ x(t)
+→ x(t+1)
+
+說明下一個狀態只依賴目前狀態。
+
+公式：
+
+p(x1...xT)
+= p(x1)Πp(xt|xt-1)
+
+Page 7 - Markov Assumption
+中央公式：
+
+p(xt|xt-1,xt-2,...)
+= p(xt|xt-1)
+
+下方文字：
+
+xt independent of xt-2, xt-3...
+
+強調 Markov 假設會忽略較久遠的歷史資訊。
+
+Page 9 - Markov Assumption Example
+兩個句子：
+
+"I like green eggs and ham"
+"I like to code in C++ and Python"
+
+圖中箭頭指出：
+
+ham 與 Python 不可能只依賴單字 and。
+
+展示 Markov 假設在自然語言中的限制。
+
+Page 10 - Markov Model
+右下角為天氣轉移圖。
+
+三個狀態：
+
+Sunny
+Cloudy
+Rainy
+
+節點間標示轉移機率。
+
+展示 Markov Chain 的基本結構。
+
+Page 11 - Notation
+定義：
+
+s(t) = st
+
+表示時間 t 的狀態。
+
+下方說明：
+
+p(st=i)
+
+代表在時間 t 處於狀態 i 的機率。
+
+Page 12 - State Distribution
+展示：
+
+p(st)
+
+為長度 M 的機率向量。
+
+範例：
+
+p(Sunday = Rainy)
+
+表示星期天是雨天的機率。
+
+Page 14 - State Transition Matrix
+展示轉移矩陣公式：
+
+Aij = p(st=j | st-1=i)
+
+行代表上一狀態。
+列代表下一狀態。
+
+Page 15 - Time-Homogeneous Markov Process
+討論：
+
+Aij(t)
+
+與
+
+Aij
+
+的差異。
+
+說明若轉移矩陣不隨時間改變，稱為 Time-Homogeneous Markov Process。
+
+Page 16 - Initial State Distribution
+句子：
+
+The quick brown fox jumps over the lazy dog.
+
+紅框標示第一個單字 The。
+
+問題：
+
+第一個單字出現機率如何估計？
+
+引入：
+
+πi = p(s1=i)
+
+Page 17 - Recap
+整理 Markov Model 核心參數：
+
+A
+轉移矩陣
+
+π
+初始狀態分布
+
+作為後續序列機率計算基礎。
+
+Page 18 - Probability of a Sequence
+推導：
+
+p(s1...T)
+= πs1 × Π Ast-1,st
+
+綠色標籤標示：
+Markov Property
+
+展示序列機率如何由轉移機率相乘得到。
+
+Page 19 - Training a Markov Model
+利用擲硬幣例子：
+
+p(heads)
+≈ count(heads)/total
+
+延伸到語言模型：
+
+p(cat)
+≈ count(cat)/total words
+
+展示 Maximum Likelihood Estimation 概念。
+
+Page 20 - Estimating A and π
+展示參數估計公式：
+
+π̂i = count(s1=i)/N
+
+Âij = count(i→j)/count(i)
+
+右下範例：
+
+count("the cat") / count("the")
+
+說明 Bigram 機率估計方式。
+
+Page 21 - Zero Probability Problem
+公式：
+
+p(s1...T)
+= πs1 × ΠAst-1,st
+
+若某轉移從未出現：
+
+Ast-1,st = 0
+
+則整句機率直接變成 0。
+
+Page 22 - Add-One Smoothing
+公式：
+
+Âij
+= (count(i→j)+1)/(count(i)+M)
+
+為 Laplace Smoothing。
+
+右下說明：
+
+加上 M 可確保每列機率總和仍為 1。
+
+Page 23 - Initial State Smoothing
+對 π 也套用 Add-One Smoothing：
+
+π̂i
+= (count(s1=i)+1)/(N+M)
+
+Page 24 - Add-Epsilon Smoothing
+將 +1 改成 +ε。
+
+ε > 1
+更平滑
+
+ε < 1
+較少平滑
+
+可控制平滑強度。
+
+Page 25 - Underflow Problem
+說明：
+
+許多小機率相乘後接近 0。
+
+電腦浮點數可能直接下溢為 0。
+
+引出 Log Probability。
+
+Page 26~27 - Log Probabilities
+利用：
+
+log(AB)
+= log(A)+log(B)
+
+將乘法轉成加法。
+
+避免 Underflow。
+
+Page 30~38 - Bayes Classifier
+系列投影片推導：
+
+Posterior
+Likelihood
+Prior
+
+最終得到 MAP 分類器：
+
+argmax p(class|x)
+
+並利用 Bayes Rule 轉換。
+
+Page 32 - MAP Decision Rule
+展示：
+
+k*
+= argmax p(author|poem)
+
+用於作者分類問題。
+
+Page 34 - Posterior = Likelihood × Prior
+圖中拆解：
+
+Posterior
+Likelihood
+Prior
+
+說明 Bayes Rule 組成元素。
+
+Page 36 - Ignore p(poem)
+指出：
+
+p(poem)
+
+對所有作者都相同。
+
+分類時可忽略。
+
+Page 37 - Log MAP
+加入 log 後變成：
+
+argmax
+log p(x|class)
++ log p(class)
+
+Page 38 - Markov Model + Bayes Classifier
+說明：
+
+log p(x|class)
+
+可由 Markov Model 計算。
+
+因此可建立文字分類器。
+
+Page 40 - Classification Pipeline
+流程：
+
+Train Markov Model for each class
+↓
+Compute likelihood
+↓
+MAP Decision
+↓
+Predict class
+
+展示完整分類流程。
+
+Page 41 - Author Classification Exercise
+任務：
+
+Edgar Allan Poe
+vs
+Robert Frost
+
+建立作者辨識器。
+
+並計算：
+
+Accuracy
+F1-score
+
+Page 43 - Problem with Markov Assumption
+指出：
+
+只依賴前一個單字。
+
+無法捕捉長距離語意關係。
+
+Page 44 - Higher Order Markov Model
+將：
+
+p(xt|xt-1)
+
+擴展成：
+
+p(xt|xt-1,xt-2)
+
+形成二階 Markov Model。
+
+Page 45 - Parameter Explosion
+展示：
+
+1st Order → M²
+2nd Order → M³
+3rd Order → M⁴
+
+維度呈指數成長。
+
+Page 47 - Probability Dictionary
+介紹利用 Dictionary 儲存轉移機率。
+
+避免存放大量 0。
+
+Page 48 - Why Use Dictionaries?
+強調：
+
+Sparsity
+
+大部分轉移根本不會出現。
+
+使用 Dictionary 更節省記憶體。
+
+Page 49~50 - First Order Transitions
+展示：
+
+p(cat|the)=0.05
+
+說明如何儲存條件機率。
+
+並引導思考二階轉移表示法。
+
+Page 51~52 - Sampling from Probability Dictionary
+利用：
+
+U(0,1)
+
+隨機取樣。
+
+Page 52 圖示：
+
+a → 0.2
+b → 0.5
+c → 0.3
+
+建立累積機率區間：
+
+0~0.2 → a
+0.2~0.7 → b
+0.7~1 → c
+
+完成隨機文字生成。
+
+Page 53 - Pros & Cons of Markov Models
+優點：
+- 簡單
+- 易解釋
+- 適合序列資料
+
+缺點：
+- 缺乏長期記憶
+- 無法處理語意歧義
+- 效果落後 Transformer

@@ -1,0 +1,405 @@
+
+c3_article_spinner_and_cipher_decryption 圖片詳細說明
+
+Page 2 - What is Article Spinning
+上方展示兩篇內容幾乎相同但用字不同的 AI 文章。
+
+第一篇：
+「人工智慧正在迅速改變生活方式」
+
+第二篇：
+「人工智慧正以驚人速度改變現代社會」
+
+兩篇文章語意相同，但措辭不同。
+
+展示 Article Spinning 的核心概念：
+透過同義改寫產生多個版本文章。
+
+Page 4 - N-Gram Markov Models
+上半部為 First-Order Markov Model：
+
+p(wt|wt-1)
+
+右側圖示：
+wt-1 → wt
+
+下半部為 Second-Order Markov Model：
+
+p(wt|wt-1,wt-2)
+
+右側圖示加入第二個歷史節點。
+
+比較一階與二階語言模型。
+
+Page 5 - Predicting the Middle Word
+圖示：
+
+wt-1 → wt ← wt+1
+
+中間單字同時受到前後文影響。
+
+說明 Article Spinning 不應從頭生成整篇文章，
+而應根據上下文替換單字。
+
+Page 6 - Estimating the Middle Word Distribution
+公式：
+
+p(wt|wt-1,wt+1)
+= count(wt-1→wt→wt+1)
+  / count(wt-1→ANY→wt+1)
+
+利用三元組頻率估計中間詞機率。
+
+Page 7 - Does it Work?
+圖中：
+
+Production → Began / Capacity / Closer / Continued / Facilities → To
+
+展示同一前後文可能對應不同中間詞。
+
+右側註記：
+
+Potential problem:
+not all middle words have same POS
+
+說明可能產生文法錯誤。
+
+Page 8 - Exercise Prompt
+介紹 BBC News Dataset。
+
+要求建立：
+
+V×V×V
+
+或 Dictionary-Based Trigram Model。
+
+作為 Article Spinner。
+
+Page 9 - Cipher Decryption
+右側為古典密碼盤(Cipher Wheel)。
+
+展示字母對應關係。
+
+說明密碼破解問題結合：
+
+- Probabilistic Language Model
+- Genetic Algorithm
+
+Page 11 - Substitution Cipher
+中央圖示展示字母替換規則。
+
+上方：
+A B C D ...
+
+下方：
+X Y Z A ...
+
+範例：
+
+COOL HAT
+↓
+ZLLI EXQ
+
+說明替換式加密。
+
+Page 12 - High-Level Picture
+完整加密通訊流程圖：
+
+Sender
+↓
+Encryption Algorithm
+↓
+Ciphertext
+↓
+Channel
+↓
+Decryption Algorithm
+↓
+Receiver
+
+中央有 Intruder(Spy)。
+
+展示密碼學基本架構。
+
+Page 13 - Example (Sender)
+明文：
+
+I LIKE CATS
+
+透過替換表：
+
+I→Y
+L→W
+K→R
+...
+
+轉換成：
+
+Y WYRN JLOB
+
+下方完整顯示 26 個字母映射表。
+
+Page 14 - Example (Receiver)
+展示反向解碼。
+
+Y WYRN JLOB
+↓
+I LIKE CATS
+
+利用相同替換表逆向恢復明文。
+
+Page 15 - Language Modeling
+展示語言模型評分概念：
+
+MyModel("I LIKE CATS")
+→ High Probability
+
+MyModel("Y WYRN JLOB")
+→ Low Probability
+
+正確解密後應得到較高機率。
+
+Page 16 - N-Gram Models in Cipher Decryption
+右側樹狀圖：
+
+CATS
+├─ C
+├─ A
+├─ T
+├─ S
+├─ CA
+├─ AT
+└─ TS
+
+介紹：
+
+Unigram
+Bigram
+
+用於判斷解密結果是否像英文。
+
+並列出：
+
+常見 Bigram
+TH、HE、ER、IN
+
+罕見 Bigram
+ZX、QP、JK、XZ
+
+Page 17 - Maximum Likelihood Decoding
+左側：
+
+G BGWQ LRPM
+
+經語言模型評分得到低機率。
+
+右側：
+
+I LIKE CATS
+
+得到高機率。
+
+目標：
+
+尋找 Maximum Likelihood Translation。
+
+Page 18 - Naive Brute Force Approach
+投影片展示 Python 偽程式：
+
+for map in all_maps:
+    decode()
+    compute likelihood()
+
+嘗試所有可能替換表。
+
+Page 19 - Why Brute Force Fails
+右上方紅框問題：
+
+How do we find all feasible decryption maps?
+
+引出搜尋空間爆炸問題。
+
+Page 20 - Infeasible Search Space
+展示：
+
+26!
+≈ 4×10^26
+
+即使每次測試只需 1ns，
+仍需約 127 億年。
+
+說明暴力搜尋不可行。
+
+Page 21 - Genetic Algorithms
+利用生物遺傳概念介紹最佳化。
+
+DNA
+↓
+Parent
+↓
+Offspring
+
+子代保留父代特徵但可能略有差異。
+
+Page 23 - Types of Mutation
+展示三種 DNA 突變：
+
+1. Substitution
+ATCG → ATTG
+
+2. Insertion
+ATCG → ATCTG
+
+3. Deletion
+ATCG → ATG
+
+以圖示展示基因變化。
+
+Page 24 - Evolution Process
+下方流程圖：
+
+Initialization
+↓
+Selection
+↓
+Crossover
+↓
+Mutation
+↓
+Next Generation
+
+展示 Genetic Algorithm 標準流程。
+
+Page 25 - Numerical Optimization
+圖中為 Fitness Landscape。
+
+X 軸：DNA
+
+Y 軸：f(DNA)
+
+展示尋找最大值的概念。
+
+將解密問題轉換成最佳化問題。
+
+Page 26 - Why Not Gradient Descent?
+右側為三維損失曲面。
+
+說明：
+
+Gradient Descent 需要可微分函數。
+
+但：
+
+Cipher Mapping
+
+屬離散組合問題。
+
+無法直接求導。
+
+Page 27 - DNA Representation
+下方顯示：
+
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+對應：
+
+LXJSNHIZYPRWCVGEDABOTKMQFU
+
+把替換表表示成 DNA 字串。
+
+每個字母只能出現一次。
+
+Page 28 - Fitness Function
+偽程式：
+
+DNA String
+↓
+Map
+↓
+Decode Ciphertext
+↓
+Language Model
+↓
+Log-Likelihood
+
+Fitness = Log-Likelihood
+
+Page 29 - Convert DNA String to Map
+範例：
+
+LXJSN...
+
+轉換成：
+
+A→L
+B→X
+C→J
+D→S
+E→N
+
+形成 Dictionary。
+
+Page 30 - Constraints on Mutation
+說明：
+
+Insertion
+Deletion
+Substitution
+
+都會破壞：
+
+- 長度 26
+- 唯一字母限制
+
+因此不能直接使用。
+
+Page 31 - Swap Mutation
+使用：
+
+Letter Swap
+
+例如交換兩個字母位置。
+
+保持：
+
+- 長度不變
+- 無重複字母
+
+符合 Cipher Mapping 限制。
+
+Page 33 - Genetic Algorithm Improvement
+說明 Local Optimum 問題。
+
+改進方法：
+
+Population-Based Search
+
+同時保留多個 DNA。
+
+增加搜尋空間探索能力。
+
+Page 34 - Genetic Algorithm Pseudocode
+展示完整 Genetic Algorithm 流程：
+
+Initialize Population
+↓
+Evaluate Fitness
+↓
+Selection
+↓
+Mutation
+↓
+Next Generation
+
+直到收斂。
+
+Page 35 - Final Exercise
+整合所有概念：
+
+1. 建立 Character-Level Language Model
+2. 建立 Unigram / Bigram Probability
+3. Encode Ciphertext
+4. Decode Ciphertext
+5. Genetic Algorithm Search
+
+完成自動密碼破解系統。
