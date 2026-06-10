@@ -423,11 +423,26 @@ def default_output_csv_path(input_path: Path) -> Path:
     return input_path.with_name(f"{input_path.stem}_answers.csv")
 
 
-def write_csv_answers(path: Path, rows: list[dict[str, str]]) -> None:
+def clean_answer_for_csv(answer: str) -> str:
+    answer = re.sub(r"（[^（）\n]+\.pdf page \d+）", "", answer)
+    answer = re.sub(r"\([^()\n]+\.pdf page \d+\)", "", answer)
+    answer = answer.replace("根據檢索到的講義內容，最相關的答案依據是：", "")
+    answer = re.sub(
+        r"\n*\s*這是抽取式回答，也就是從講義片段中挑出最相關的句子；如果要更像人類整理後的回答，可以使用 --llm openai。",
+        "",
+        answer,
+    )
+    lines = [line.strip() for line in answer.splitlines()]
+    lines = [line[2:].strip() if line.startswith("- ") else line for line in lines]
+    lines = [line for line in lines if line]
+    return " ".join(lines)
+
+
+def write_csv_answers(path: Path, answers: list[str]) -> None:
     with path.open("w", encoding="utf-8-sig", newline="") as file:
-        writer = csv.DictWriter(file, fieldnames=["question", "answer", "sources"])
-        writer.writeheader()
-        writer.writerows(rows)
+        writer = csv.writer(file)
+        for answer in answers:
+            writer.writerow([clean_answer_for_csv(answer)])
 
 
 def main() -> None:
@@ -499,11 +514,11 @@ def main() -> None:
             raise SystemExit(f"No questions found in CSV: {csv_path}")
 
         output_csv = args.output_csv or default_output_csv_path(csv_path)
-        output_rows: list[dict[str, str]] = []
+        output_answers: list[str] = []
 
         for index, question in enumerate(questions, start=1):
             print(f"[{index}/{len(questions)}] {question}")
-            _expanded_query, answer, sources = answer_question(
+            _expanded_query, answer, _sources = answer_question(
                 question,
                 pages,
                 documents,
@@ -512,15 +527,9 @@ def main() -> None:
                 args,
                 llm_mode,
             )
-            output_rows.append(
-                {
-                    "question": question,
-                    "answer": answer,
-                    "sources": "; ".join(sources),
-                }
-            )
+            output_answers.append(answer)
 
-        write_csv_answers(output_csv, output_rows)
+        write_csv_answers(output_csv, output_answers)
         print(f"Saved answers to: {output_csv}")
         return
 

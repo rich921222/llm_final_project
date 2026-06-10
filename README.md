@@ -95,11 +95,7 @@ python rag_answer.py --llm openai --input_csv
 input_answers.csv
 ```
 
-輸出欄位包含：
-
-- `question`：原始問題
-- `answer`：系統回答
-- `sources`：檢索到的來源頁面
+輸出 CSV 不包含 header，每一列只會寫入一個答案欄位；批次輸出不會寫入來源頁碼或 sources。
 
 也可以指定輸出檔名：
 
