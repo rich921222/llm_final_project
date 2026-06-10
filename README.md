@@ -129,7 +129,7 @@ $env:OPENAI_API_KEY="your_api_key_here"
 python rag_answer.py "什麼是馬可夫鏈？" --llm openai
 ```
 
-使用 OpenAI 模式時，系統預設會先請 GPT 將原始問題改寫成較適合 TF-IDF 檢索的英文 query，再進行講義檢索，最後把檢索到的講義內容交給 GPT 生成答案。
+使用 OpenAI 模式時，系統預設會先請 GPT 將原始問題改寫成較適合 TF-IDF 檢索的 query，接著把「原始問題 + 改寫後 query」串聯後再進行講義檢索，最後把檢索到的講義內容交給 GPT 生成答案。這樣可以保留中文關鍵字，同時補上英文同義詞。
 
 可顯示改寫後的 query：
 
@@ -144,6 +144,8 @@ python rag_answer.py "tfidf計算方法" --llm openai --rewrite-query none
 ```
 
 OpenAI 模式會優先根據講義 context 回答。若 TF-IDF 與 GPT query 改寫後仍找不到足夠講義內容，系統會讓模型使用一般知識直接回答，不額外輸出提醒標籤。
+
+若問題與課程資訊相關，系統會額外附上課程介紹或課程時程頁給 GPT 參考；這些額外頁面不會插入 TF-IDF 排名，也不會被人工指定為高分。
 
 ## 常用範例
 

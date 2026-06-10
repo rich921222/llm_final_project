@@ -26,6 +26,7 @@ DEFAULT_MODEL = "gpt-4.1-mini"
 SENTENCE_PATTERN = re.compile(r"(?<=[.!?。！？])\s+|\n+|●|○|- ")
 COURSE_INFO_SOURCE = "c0_course_introduction.pdf"
 COURSE_INFO_PAGES = 6
+COURSE_SCHEDULE_PAGES = (21, 22)
 COURSE_INFO_KEYWORDS = {
     "老師",
     "教授",
@@ -51,6 +52,20 @@ COURSE_INFO_KEYWORDS = {
     "加選",
     "上課",
     "出席",
+}
+COURSE_SCHEDULE_KEYWORDS = {
+    "不用上課",
+    "不上課",
+    "停課",
+    "放假",
+    "哪幾天",
+    "幾天",
+    "行事曆",
+    "課表",
+    "schedule",
+    "syllabus",
+    "holiday",
+    "no class",
 }
 
 
@@ -108,43 +123,68 @@ def is_course_info_question(question: str, expanded_query: str) -> bool:
     return any(keyword.lower() in combined for keyword in COURSE_INFO_KEYWORDS)
 
 
-def build_course_info_document(pages: list[dict[str, object]], page_count: int) -> dict[str, object] | None:
-    course_pages = [
+def build_course_page_document(
+    pages: list[dict[str, object]],
+    page_numbers: set[int],
+) -> dict[str, object] | None:
+    selected_pages = [
         page
         for page in pages
-        if str(page["source"]) == COURSE_INFO_SOURCE and int(page["page"]) <= page_count
+        if str(page["source"]) == COURSE_INFO_SOURCE and int(page["page"]) in page_numbers
     ]
-    if not course_pages:
+    if not selected_pages:
         return None
 
-    course_pages.sort(key=lambda page: int(page["page"]))
+    selected_pages.sort(key=lambda page: int(page["page"]))
     return {
         "source": COURSE_INFO_SOURCE,
-        "start_page": int(course_pages[0]["page"]),
-        "end_page": int(course_pages[-1]["page"]),
-        "pages": course_pages,
-        "text": "\n".join(str(page["text"]) for page in course_pages),
+        "start_page": int(selected_pages[0]["page"]),
+        "end_page": int(selected_pages[-1]["page"]),
+        "pages": selected_pages,
+        "text": "\n".join(str(page["text"]) for page in selected_pages),
     }
 
 
-def prepend_result(
-    results: list[tuple[float, dict[str, object]]],
-    score: float,
-    document: dict[str, object],
-) -> list[tuple[float, dict[str, object]]]:
-    source = str(document["source"])
-    start_page = int(document["start_page"])
-    end_page = int(document["end_page"])
-    filtered_results = [
-        (result_score, result_document)
-        for result_score, result_document in results
-        if not (
-            str(result_document["source"]) == source
-            and int(result_document["start_page"]) <= end_page
-            and int(result_document["end_page"]) >= start_page
-        )
-    ]
-    return [(score, document), *filtered_results]
+def build_extra_course_documents(
+    question: str,
+    expanded_query: str,
+    pages: list[dict[str, object]],
+) -> list[dict[str, object]]:
+    combined = f"{question} {expanded_query}".lower()
+    page_numbers: set[int] = set()
+    is_schedule_question = any(keyword.lower() in combined for keyword in COURSE_SCHEDULE_KEYWORDS)
+
+    if is_course_info_question(question, expanded_query) and not is_schedule_question:
+        page_numbers.update(range(1, COURSE_INFO_PAGES + 1))
+
+    if is_schedule_question:
+        page_numbers.update(COURSE_SCHEDULE_PAGES)
+
+    document = build_course_page_document(pages, page_numbers)
+    return [document] if document is not None else []
+
+
+def build_extra_context(documents: list[dict[str, object]], max_chars: int) -> str:
+    chunks: list[str] = []
+    current_length = 0
+
+    for document in documents:
+        source = str(document["source"])
+        for page in document["pages"]:
+            page_number = int(page["page"])
+            text = " ".join(str(page["text"]).split())
+            block = f"[Extra course context: {source} page {page_number}]\n{text}\n"
+
+            if current_length + len(block) > max_chars:
+                remaining = max_chars - current_length
+                if remaining > 200:
+                    chunks.append(block[:remaining])
+                return "\n".join(chunks)
+
+            chunks.append(block)
+            current_length += len(block)
+
+    return "\n".join(chunks)
 
 
 def collect_sources(results: list[tuple[float, dict[str, object]]]) -> list[str]:
@@ -350,6 +390,14 @@ def rewrite_query_with_openai(question: str, model: str) -> str:
     return rewritten_query or question
 
 
+def combine_retrieval_queries(original_query: str, rewritten_query: str) -> str:
+    original_query = " ".join(original_query.split())
+    rewritten_query = " ".join(rewritten_query.split())
+    if not rewritten_query or rewritten_query == original_query:
+        return original_query
+    return f"{original_query} {rewritten_query}"
+
+
 def retrieve(
     question: str,
     retrieval_query: str,
@@ -363,11 +411,6 @@ def retrieve(
 ) -> tuple[str, list[tuple[float, dict[str, object]]]]:
     expanded_query = prepare_query(retrieval_query, translator)
     results = search(expanded_query, documents, doc_vectors, idf, top_k, allow_overlap)
-
-    if is_course_info_question(question, expanded_query):
-        course_info_document = build_course_info_document(pages, COURSE_INFO_PAGES)
-        if course_info_document is not None:
-            results = prepend_result(results, 1.0, course_info_document)
 
     return expanded_query, results
 
@@ -384,7 +427,8 @@ def answer_question(
     should_rewrite_query = args.rewrite_query == "openai" or (
         args.rewrite_query == "auto" and llm_mode == "openai"
     )
-    retrieval_query = rewrite_query_with_openai(question, args.model) if should_rewrite_query else question
+    rewritten_query = rewrite_query_with_openai(question, args.model) if should_rewrite_query else question
+    retrieval_query = combine_retrieval_queries(question, rewritten_query) if should_rewrite_query else question
 
     expanded_query, results = retrieve(
         question,
@@ -399,21 +443,45 @@ def answer_question(
     )
 
     if args.show_query:
-        if retrieval_query != question:
-            print(f"Rewritten query: {retrieval_query}")
+        if rewritten_query != question:
+            print(f"Rewritten query: {rewritten_query}")
+            print(f"Retrieval query: {retrieval_query}")
         print(f"Expanded query: {expanded_query}\n")
 
+    extra_course_documents = build_extra_course_documents(question, expanded_query, pages)
+    extra_context = build_extra_context(extra_course_documents, args.max_context_chars // 2)
+
     if not results:
+        if llm_mode == "openai" and extra_context:
+            if args.show_context:
+                print("Retrieved context:")
+                print()
+                print("Extra course context:")
+                print(extra_context)
+                print()
+            answer = answer_with_openai(question, extra_context, args.model, True)
+            return expanded_query, answer, []
         if llm_mode == "openai":
             answer = answer_with_openai_general_knowledge(question, args.model)
             return expanded_query, answer, []
         return expanded_query, "我找不到相關講義頁面，因此無法回答。", []
 
-    context = build_context(results, args.max_context_chars)
+    retrieved_context_chars = args.max_context_chars - len(extra_context) if extra_context else args.max_context_chars
+    retrieved_context = build_context(results, max(retrieved_context_chars, args.max_context_chars // 2))
+    context_parts = [retrieved_context]
+    if extra_context:
+        remaining_chars = max(args.max_context_chars - len(retrieved_context), 0)
+        if remaining_chars > 200:
+            context_parts.append(extra_context[:remaining_chars])
+    context = "\n".join(context_parts)
 
     if args.show_context:
         print("Retrieved context:")
-        print(context)
+        print(retrieved_context)
+        if extra_context:
+            print()
+            print("Extra course context:")
+            print(extra_context)
         print()
 
     if llm_mode == "openai":
@@ -425,16 +493,27 @@ def answer_question(
 
 
 def read_text_with_fallback_encodings(path: Path) -> str:
+    raw_bytes = path.read_bytes()
     encodings = ["utf-8-sig", "utf-8", "cp950", "big5", "big5hkscs"]
+    if raw_bytes.startswith((b"\xff\xfe", b"\xfe\xff")) or raw_bytes[:200].count(0) > 20:
+        encodings = ["utf-16", "utf-16-le", "utf-16-be", *encodings]
     last_error: UnicodeDecodeError | None = None
 
     for encoding in encodings:
         try:
-            return path.read_text(encoding=encoding)
+            return raw_bytes.decode(encoding)
         except UnicodeDecodeError as error:
             last_error = error
 
-    raise SystemExit(f"Could not decode CSV file: {path}. Last error: {last_error}")
+    encoding = "utf-16" if encodings[0] == "utf-16" else "utf-8-sig"
+    decoded_text = raw_bytes.decode(encoding, errors="replace")
+    replacement_count = decoded_text.count("\ufffd")
+    print(
+        f"Warning: CSV file {path} contains bytes that could not be decoded strictly. "
+        f"Using {encoding} with {replacement_count} replacement character(s).",
+        file=sys.stderr,
+    )
+    return decoded_text
 
 
 def load_csv_questions(path: Path) -> list[str]:
