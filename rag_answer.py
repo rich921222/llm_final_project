@@ -6,6 +6,7 @@ import os
 import re
 import sys
 from collections import Counter
+from io import StringIO
 from pathlib import Path
 
 from tfidf_search import (
@@ -390,17 +391,30 @@ def answer_question(
     return expanded_query, answer, collect_sources(results)
 
 
+def read_text_with_fallback_encodings(path: Path) -> str:
+    encodings = ["utf-8-sig", "utf-8", "cp950", "big5", "big5hkscs"]
+    last_error: UnicodeDecodeError | None = None
+
+    for encoding in encodings:
+        try:
+            return path.read_text(encoding=encoding)
+        except UnicodeDecodeError as error:
+            last_error = error
+
+    raise SystemExit(f"Could not decode CSV file: {path}. Last error: {last_error}")
+
+
 def load_csv_questions(path: Path) -> list[str]:
     questions: list[str] = []
+    csv_text = read_text_with_fallback_encodings(path)
 
-    with path.open("r", encoding="utf-8-sig", newline="") as file:
-        reader = csv.reader(file)
-        for row in reader:
-            if not row:
-                continue
-            question = str(row[0]).strip()
-            if question:
-                questions.append(question)
+    reader = csv.reader(StringIO(csv_text))
+    for row in reader:
+        if not row:
+            continue
+        question = str(row[0]).strip()
+        if question:
+            questions.append(question)
 
     return questions
 
