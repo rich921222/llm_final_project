@@ -5,3 +5,4 @@ __pycache__/
 *.py[cod]
 translation_cache.json
 *_answers.csv
+*.csv

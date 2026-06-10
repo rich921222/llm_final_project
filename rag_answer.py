@@ -245,9 +245,9 @@ def answer_with_openai(question: str, context: str, model: str, allow_general_an
         system_prompt = (
             "You answer questions in Traditional Chinese. First use the provided lecture context. "
             "If the lecture context contains enough information, answer from it and cite source pages. "
-            "If the lecture context does not contain enough information, clearly say that the lecture "
-            "does not provide the answer, then provide a general-knowledge answer under a separate "
-            "label: '一般知識補充（非講義來源）'. Do not pretend that general knowledge came from the lecture."
+            "If the lecture context does not contain enough information, use your own general "
+            "knowledge and reasoning to answer directly without warning labels or source citations. "
+            "Do not pretend that general knowledge came from the lecture."
         )
     else:
         system_prompt = (
@@ -271,6 +271,36 @@ def answer_with_openai(question: str, context: str, model: str, allow_general_an
                     f"Lecture context:\n{context}\n\n"
                     "Please give a concise answer and cite source pages."
                 ),
+            },
+        ],
+    )
+    return response.output_text
+
+
+def answer_with_openai_general_knowledge(question: str, model: str) -> str:
+    try:
+        from openai import OpenAI
+    except ImportError as error:
+        raise SystemExit("OpenAI package not found. Install it with: pip install openai") from error
+
+    if not os.environ.get("OPENAI_API_KEY"):
+        raise SystemExit("OPENAI_API_KEY is not set.")
+
+    client = OpenAI()
+    response = client.responses.create(
+        model=model,
+        input=[
+            {
+                "role": "system",
+                "content": (
+                    "You answer in Traditional Chinese. The lecture retrieval system did not find "
+                    "enough related course material. Answer directly using your own general "
+                    "knowledge and reasoning. Do not include warning labels or source citations."
+                ),
+            },
+            {
+                "role": "user",
+                "content": f"Question:\n{question}\n\nPlease give a concise but useful answer.",
             },
         ],
     )
@@ -374,6 +404,9 @@ def answer_question(
         print(f"Expanded query: {expanded_query}\n")
 
     if not results:
+        if llm_mode == "openai":
+            answer = answer_with_openai_general_knowledge(question, args.model)
+            return expanded_query, answer, []
         return expanded_query, "我找不到相關講義頁面，因此無法回答。", []
 
     context = build_context(results, args.max_context_chars)
@@ -384,7 +417,7 @@ def answer_question(
         print()
 
     if llm_mode == "openai":
-        answer = answer_with_openai(question, context, args.model, args.allow_general_answer)
+        answer = answer_with_openai(question, context, args.model, True)
     else:
         answer = answer_extractive(question, expanded_query, results, args.max_sentences)
 
@@ -438,11 +471,11 @@ def clean_answer_for_csv(answer: str) -> str:
     return " ".join(lines)
 
 
-def write_csv_answers(path: Path, answers: list[str]) -> None:
+def write_csv_answers(path: Path, rows: list[tuple[str, str]]) -> None:
     with path.open("w", encoding="utf-8-sig", newline="") as file:
         writer = csv.writer(file)
-        for answer in answers:
-            writer.writerow([clean_answer_for_csv(answer)])
+        for question, answer in rows:
+            writer.writerow([question, clean_answer_for_csv(answer)])
 
 
 def main() -> None:
@@ -482,7 +515,7 @@ def main() -> None:
     parser.add_argument(
         "--allow-general-answer",
         action="store_true",
-        help="allow OpenAI mode to answer with general knowledge when lecture context is insufficient",
+        help="kept for compatibility; OpenAI mode now falls back to general knowledge when lecture context is insufficient",
     )
     parser.add_argument("--show-context", action="store_true", help="print retrieved context before the answer")
     parser.add_argument("--show-query", action="store_true", help="print translated/expanded query")
@@ -514,7 +547,7 @@ def main() -> None:
             raise SystemExit(f"No questions found in CSV: {csv_path}")
 
         output_csv = args.output_csv or default_output_csv_path(csv_path)
-        output_answers: list[str] = []
+        output_rows: list[tuple[str, str]] = []
 
         for index, question in enumerate(questions, start=1):
             print(f"[{index}/{len(questions)}] {question}")
@@ -527,9 +560,9 @@ def main() -> None:
                 args,
                 llm_mode,
             )
-            output_answers.append(answer)
+            output_rows.append((question, answer))
 
-        write_csv_answers(output_csv, output_answers)
+        write_csv_answers(output_csv, output_rows)
         print(f"Saved answers to: {output_csv}")
         return
 

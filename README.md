@@ -95,7 +95,7 @@ python rag_answer.py --llm openai --input_csv
 input_answers.csv
 ```
 
-輸出 CSV 不包含 header，每一列只會寫入一個答案欄位；批次輸出不會寫入來源頁碼或 sources。
+輸出 CSV 不包含 header，每一列有兩欄：第一欄完整複製輸入問題，第二欄寫入答案；批次輸出不會寫入來源頁碼或 sources。
 
 也可以指定輸出檔名：
 
@@ -143,19 +143,7 @@ python rag_answer.py "tfidf計算方法" --llm openai --show-query
 python rag_answer.py "tfidf計算方法" --llm openai --rewrite-query none
 ```
 
-預設情況下，OpenAI 模式只能根據講義 context 回答。如果講義沒有答案，會說明講義中找不到。
-
-若希望講義找不到答案時，GPT 可以補充一般知識，請加上：
-
-```powershell
-python rag_answer.py "問題" --llm openai --allow-general-answer
-```
-
-此模式會要求 GPT 將一般知識標註為：
-
-```text
-一般知識補充（非講義來源）
-```
+OpenAI 模式會優先根據講義 context 回答。若 TF-IDF 與 GPT query 改寫後仍找不到足夠講義內容，系統會讓模型使用一般知識直接回答，不額外輸出提醒標籤。
 
 ## 常用範例
 
