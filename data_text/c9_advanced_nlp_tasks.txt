@@ -1,0 +1,655 @@
+===== Page 1 =====
+Announcement
+● 期末考
+○ 6/3 (三)14:10 ~ 16:00
+○ 地點：337, 338 (請參考ilearning 公告)
+○ 範圍C6~C9
+○ No open book
+○ 考試開始30分鐘後不得入場
+● 第十六週為期末專題週
+○ 可至上課教室確認期末考成績和詢問期末專題相關事項
+
+===== Page 2 =====
+Advanced NLP Tasks
+
+===== Page 3 =====
+Named Entity Recognition
+● Named entity recognition (NER) 讓我們能夠識別（即標記）文件中的所有人名、
+地名和公司名稱。
+● 和 parts-of-speech tagging ㄧ樣類型的任務 (many-to-many)
+
+===== Page 4 =====
+NER 的挑戰
+● 有些實體會跨越多個詞元（例如 “Steve” 和 “jobs”）
+● 同一個詞在不同語境下可能代表不同實體類別（ex: "Apple" 是公司還是水果）
+● 中文等語言沒有空格切詞，斷詞會影響準確性
+● 新詞（如新興企業、人名）難以預測
+● 資料高度不平衡（大多數詞元都被標記為 “O”）
+
+===== Page 5 =====
+NER 的挑戰
+● 有些實體會跨越多個詞元（例如 “Steve” 和 “jobs”）
+● 同一個詞在不同語境下可能代表不同實體類別（ex: "Apple" 是公司還是水果）
+● 中文等語言沒有空格切詞，斷詞會影響準確性
+● 新詞（如新興企業、人名）難以預測
+● 資料高度不平衡（大多數詞元都被標記為 “O”）
+NER 需要結合上下文語意，這也是 BERT 類模型
+效果較好的原因之一。
+
+===== Page 6 =====
+NER 模型演進
+1. 傳統模型：CRF、HMM，依賴人工特徵（POS、位置等）
+2. 深度學習模型：BiLSTM + CRF（引入上下文，但需大量訓練資料）
+3. Transformer-based 模型：BERT + CRF / linear classifier，利用 contextual
+embedding 提升準確率
+
+===== Page 7 =====
+Conditional Random Field (CRF)
+● CRF 是一種機率圖模型，專門設計來預測序列中的標籤（labels），例如一串句子
+中每個詞的實體類別。
+● 它考慮了：
+○ 當前詞的特徵（例如：詞、詞性、是否為大寫）
+○ 相鄰標籤之間的關聯性（例如：一個 B-PER 標籤後面不應該接 I-ORG）
+Ex: Steve Jobs founded Apple.
+● 若只用 softmax 去預測每個詞的標籤，可能會出現這種結果：
+○ Steve    B-PER
+○ Jobs     I-ORG   ❌
+○ founded  O
+○ Apple    B-LOC   ❌
+● CRF 可以透過建模標籤間的轉換機率，避免這些不自然的標註組合。
+
+===== Page 8 =====
+Conditional Random Field (CRF)
+● CRF 是一種機率圖模型，專門設計來預測序列中的標籤（labels），例如一串句子
+中每個詞的實體類別。
+● 它考慮了：
+○ 當前詞的特徵（例如：詞、詞性、是否為大寫）
+○ 相鄰標籤之間的關聯性（例如：一個 B-PER 標籤後面不應該接 I-ORG）
+Ex: Steve Jobs founded Apple.
+● 若只用 softmax 去預測每個詞的標籤，可能會出現這種結果：
+○ Steve    B-PER
+○ Jobs     I-ORG   ❌
+○ founded  O
+○ Apple    B-LOC   ❌
+● CRF 可以透過建模標籤間的轉換機率，避免這些不自然的標註組合。
+簡單類比：
+● 如果只用 softmax，模型是「逐字猜標籤」，每次獨立
+決定；
+● 如果用 CRF，模型會「整體考慮」，在所有可能的標籤
+組合中找出最合理的一條序列。
+
+===== Page 9 =====
+BIO Format
+● B：實體的開頭（Begin）
+● I：實體的內部（Inside）
+● O：非實體（Outside）
+
+===== Page 10 =====
+NER 評估方式
+● Precision, Recall, F1 score
+● Token-level vs Entity-level
+○ Token-level: 對每個 token 的標註是否正確來評估（較寬鬆）
+○ Entity-level: 需整個實體類別與邊界都正確，才算 TP（較嚴格、常用）
+○ 範例：若實體是 New York City，預測成 New York 就不算正確（Entity-level）
+
+===== Page 11 =====
+NER 為何重要以及延伸應用
+● NER 是資訊抽取任務的核心
+○ 資訊抽取（Information Extraction） = 從大量文本中找出有用資訊
+○ NER 就是這一步的基礎工作，讓非結構化文字轉為結構化資料
+● 範例：
+○ 新聞原文：Tesla plans to build a new factory in Monterrey, Mexico by 2026.
+○ NER 輸出：
+■ Tesla → ORG
+■ Monterrey → LOC
+■ Mexico → LOC
+■ 2026 → DATE
+● 可接續應用：關係抽取、知識圖譜建構、文件分類…
+
+===== Page 12 =====
+NER 為何重要以及延伸應用
+● 有些高階 NLP 任務仰賴 NER 輸出
+● 問答系統
+○ 判斷提問中要查詢哪種實體
+● 對話系統
+○ 判斷地點、人名以觸發回應
+● 自動摘要
+○ 擷取重要實體決定保留內容
+● 法律/醫療分析
+○ 辨識人名、藥物、疾病名稱
+● 金融監控
+○ 找出公司、交易對象、時間地點
+
+===== Page 13 =====
+NER 為何重要以及延伸應用
+● 有些高階 NLP 任務仰賴 NER 輸出
+● 問答系統
+○ 判斷提問中要查詢哪種實體
+● 對話系統
+○ 判斷地點、人名以觸發回應
+● 自動摘要
+○ 擷取重要實體決定保留內容
+● 法律/醫療分析
+○ 辨識人名、藥物、疾病名稱
+● 金融監控
+○ 找出公司、交易對象、時間地點
+當然也可以直接透過生成式AI一步到位，
+但使用 NER 作為 filter 可以提升效率以
+及達到特定需求
+
+===== Page 14 =====
+NER 為何重要以及延伸應用
+NER 是可擴展的，不只是人名地名！NER 可以擴展為：
+● Fine-grained NER：像是產品、貨幣、學術領域
+● Domain-specific NER：法律、醫療、金融的專用實體
+● Nested NER：一個實體內部還有另一個實體（如：University of California,
+Berkeley）
+
+===== Page 15 =====
+Natural Language Inference (NLI)
+● Natural Language Inference (NLI)，又稱為 Recognizing Textual
+Entailment (RTE)
+● 目標：判斷兩個句子之間的邏輯關係。
+○ Premise（前提）：給定的一個句子
+○ Hypothesis（假設）：需要檢驗的句子
+● 三種典型的關係：
+○ Entailment（蘊涵）：前提必然導致假設為真。
+○ Contradiction（矛盾）：前提與假設互相矛盾。
+○ Neutral（中立）：前提與假設無明顯蘊涵或矛盾關係。
+
+===== Page 16 =====
+Example
+Premise Hypothesis Label
+A man is playing a guitar. A man is making music. Entailment
+A man is playing a guitar. A man is sleeping. Contradiction
+A man is playing a guitar. A man is performing on
+stage.
+Neutral
+
+===== Page 17 =====
+NLI 挑戰
+● 語意理解的細節非常重要（不只是單字比對）
+○ Premise: The boy is running a race.
+○ Hypothesis: The boy is jogging casually.
+○ 表面上 "running" 和 "jogging" 類似，但實際語意不同。"Race" 暗示競賽、快速，"jogging" 則是輕
+鬆慢跑。
+○ 標記：Contradiction
+● 背景知識（common sense）常常是必要的
+○ Premise: A man is buying a ticket at the cinema.
+○ Hypothesis: The man is going to watch a movie.
+○ 前提沒明講「要看電影」，但常識推論「買電影票 → 看電影」。
+○ 標記：Entailment
+
+===== Page 18 =====
+NLI 挑戰
+● 同義詞、上下文推理
+○ Premise: The child is eating a sandwich.
+○ Hypothesis: The kid is having lunch.
+○ "child" = "kid" 是同義詞，"eating a sandwich" 很可能是吃午餐，需結合語境推理。
+○ 標記：Entailment 或（如果太寬鬆，也可標 neutral）
+● 否定詞、雙重否定等語言現象
+○ Premise: No one in the room was unaware of the problem.
+○ Hypothesis: Everyone knew about the problem.
+○ "No one unaware" = "Everyone aware"，必須正確解析雙重否定。
+○ 標記：Entailment
+
+===== Page 19 =====
+常見資料集
+Dataset 特點 難度
+SNLI 單一領域、簡單句子 低
+MNLI 多領域、正式與口語兼有 中
+ANLI 人工設計出容易讓模型出錯的句子關係
+Ex: 假設一個模型很容易認為「有相同主詞就代表蘊涵」
+Premise: A dog is running outside.
+Hypothesis (annotator寫的對抗例子): A dog is sleeping
+peacefully inside the house.
+→ contradiction
+高
+
+===== Page 20 =====
+NLI 方法
+● BERT
+○ 雙向 Transformer 預訓練，然後微調
+○ 微調方法：
+■ 把 premise 和 hypothesis 用 [SEP] 分開，一起餵進 Transformer
+■ [CLS] token 的向量拿去做三分類（entailment/neutral/contradiction）
+● RoBERTa
+○ 改進版的 BERT
+○ 對 NLI：
+■ 在 MNLI 上微調後能顯著提升泛化到其他領域的能力。
+
+===== Page 21 =====
+NLI 方法
+● DeBERTa（Microsoft）
+● 核心創新：
+○ 相對位置編碼（relative position encoding）
+○ 分離的內容與位置注意力（disentangled attention）
+■ BERT: attention(content + position) → 可能混淆內容與位置的貢獻 (例如：「狗追貓」和「貓
+追狗」)
+■ DeBERT: attention(content) + attention(position) → 更細緻
+● 在 NLI 上特別強，尤其是需要細膩推理（例如 ANLI）時，優於一般 BERT。
+● DeBERTa-large 幾乎在 MNLI、ANLI 上都接近人類水準。
+
+===== Page 22 =====
+NLI 方法
+● T5 / mT5 / Flan-T5
+● 把 NLI 當作一個文字生成任務
+○ 輸入："premise: ... hypothesis: ..." → 直接生成 "entailment" / "neutral" / "contradiction"。
+● Flan-T5 加了 instruction tuning，效果更好。
+○ 訓練資料從「輸入內容 → 輸出答案」變成「指令 + 輸入內容 → 輸出答案」
+○ "Translate English to German: The house is small." → "Das Haus ist klein."
+○ "Summarize this paragraph:" → [段落的摘要]
+○ "Given premise and hypothesis, predict NLI label:" → "entailment"
+● 多語言版：mT5，支援跨語言 NLI。
+
+===== Page 23 =====
+Text Summarization
+● Text Summarization是指：自動地將一段長文本，縮短成一段簡潔、保留重點的
+內容。
+● Extractive Summarization：從原文中挑選關鍵句子，組成摘要。
+● Abstractive Summarization：重新理解並用自己的話寫出摘要，像人類一樣
+重組、改寫。
+
+===== Page 24 =====
+Abstractive Summarization
+● 抽取式摘要的局限：
+○ 只能簡單剪貼原文，無法進行深入整合。
+○ 缺乏自然的表達，句子銜接生硬。
+● Abstractive 的優勢：
+○ 能夠理解原文意涵，重新組織與精煉資訊。
+○ 可以融合多句內容，寫出流暢、自然的新句子。
+● 應用場景更廣泛：
+○ 需要高度語意理解與自然生成的場合，如新聞、自動報告、聊天機器人回答等。
+
+===== Page 25 =====
+Abstractive Summarization 的代表模型
+● 基礎架構：Transformer
+● Seq2Seq 預訓練模型：BART, T5
+● 摘要特化型模型：PEGASUS
+● 通用大模型（Zero/Few-shot 摘要）：UL2, GPT-3.5/GPT-4
+
+===== Page 26 =====
+PEGASUS
+● 設計目的：
+○ 專門為自動摘要任務打造的預訓練模型
+○ 由 Google Research 在 2020 年提出
+● 核心想法：
+○ 在預訓練階段，故意刪除（mask）一段關鍵句子
+○ 讓模型學會理解整篇文章並重建缺失內容
+○ 這種方式模擬了生成摘要的行為
+● 預訓練方法：
+○ 名為 Gap Sentence Generation (GSG)
+○ 不是隨便遮蓋單詞，而是遮蓋資訊密度最高的句子
+○ 目標：學會「閱讀整篇→理解→用自己的話補上重點」
+
+===== Page 27 =====
+Gap Sentence Generation (GSG)
+● 不是學單字層級的修補，而是學內容層級的重建
+● 流程：
+1. 讀取一篇完整的原始文本
+2. 分析文本中每個句子的資訊密度
+a. 以統計方法（例如句子的TF-IDF分數、位置特徵）來判斷哪些句子資訊含量高
+b. 資訊密度高的句子通常就是摘要該選取的內容（如主題句、關鍵事實）
+3. 遮蔽這些高資訊量句子
+4. 讓模型學習：從缺失的文章中生成這些被刪除的重要句子
+a. 輸入：刪除關鍵句後的殘缺文章
+b. 輸出：原本被刪除的重要句子
+5. 自動指標 (如 ROUGE、BERTScore) +人工評估 (Fluency、Coverage、
+Faithfulness)
+
+===== Page 28 =====
+
+
+===== Page 29 =====
+PEGASUS 的特色與優勢
+● 高度針對摘要任務設計，效果比一般預訓練模型更好
+● 訓練過程更貼近摘要行為，理解與重組能力更強
+● 在多個摘要資料集（CNN/DailyMail、XSum等）上，表現超越當時其他模型
+● 同時可以應用於多種語言（經微調後適應多語言摘要）
+一篇新聞中，會把最關鍵的一句遮掉，讓模型自己寫出那句，像
+是在訓練它總結重點。
+
+===== Page 30 =====
+UL2 — Unified Language Learning
+● 由 Google 在 2022 年發表
+● 設計目的：
+○ 打破單一預訓練方式的限制
+○ 同時支持 理解（encoding） 和 生成（decoding） 兩種能力
+● 核心想法：
+○ Mixture-of-Denoising-Objectives（多種降噪任務混合訓練）
+○ 模型在預訓練時，同時學會：
+■ Masked Language Modeling (BERT式)
+■ Next Token Prediction (GPT式)
+■ Span Corruption（T5式）
+● 讓模型在不同類型任務下都能表現良好（分類、摘要、問答、生成任務都OK）
+
+===== Page 31 =====
+Mixture of Denoising Objectives
+整體流程
+1. 從預訓練資料庫中隨機取一段文本
+2. 隨機選擇一種目標任務（MLM / NTP / SC）
+a. 根據設定的機率分佈，有些版本是均勻隨機，有些微調過
+3. 根據選中的任務類型，對文本做對應的破壞
+4. 將破壞後的文本餵給模型，訓練模型學會復原或生成正確的內容
+
+===== Page 32 =====
+Example
+「科學家在火星上發現
+了新型微生物，這可能
+改變我們對生命起源
+的理解。」
+● 遮蔽單字：「科學家在 [MASK1] 上發現了新型微生物，這可
+能改變我們對 [MASK2] 起源的理解。」
+● 模型任務：預測 [MASK1] 是「火星」、[MASK2] 是「生命」。
+● 輸入：「科學家在火星上發現了新型微生物，這可能改變我
+們對生命」
+● 模型任務：預測接下來要生成的詞是「起源的理解」。
+● 遮蔽片段：「科學家在 [MASK1]，這可能 [MASK2]。」
+● 模型任務：生成 [MASK1]：「火星上發現了新型微生物」；
+[MASK2]：「改變我們對生命起源的理解」。
+MLM
+NTP
+SC
+
+===== Page 33 =====
+UL2 的特色與應用
+● 高度彈性：理解任務、生成任務皆適用
+● Prompt-based Learning強化：可以接受各種prompt設計，更容易做
+Few-shot/Zero-shot應用
+● 學習更全面：預訓練目標涵蓋了不同語言建模任務，比單一目標更健壯
+● UL2 技術也被運用在後來的 PaLM 2（Google大模型） 中，屬於未來大型模型趨
+勢之一
+
+===== Page 34 =====
+
+
+===== Page 35 =====
+Machine Translation
+● MT是指將一種語言的文字，自動翻譯成另一種語言的技術
+● 核心目標：保留語意、符合語法、流暢自然
+● 注意事項
+○ Semantic Accuracy
+■ 翻譯不能改變原文真正的意思
+○ Fluency
+■ 翻譯的句子需要符合目標語言的自然表達，而非直譯
+○ Terminology Consistency
+■ 專有名詞、技術術語必須一致且正確
+○ Cultural Appropriateness
+■ 文化特有表達要做適當調整，避免直譯錯誤
+○ Handling Long or Complex Sentences
+■ 需要能跨越多個子句正確理解結構
+
+===== Page 36 =====
+● Word Order Differences
+○ 不同語言的主詞、動詞、受詞順序常不同，需要重新組織句子
+● Ambiguity & Context Dependence
+○ bank → 銀行 or 河岸
+● Long-Distance Dependencies
+○ 遠距離詞語之間存在依賴關係，例如英語關係子句、德語動詞尾置現象
+○ Ex: The book that the teacher who arrived yesterday recommended is very interesting.
+● Low-Resource Languages
+○ 資料量少的語言翻譯困難，容易導致模型欠佳
+● Style and Emotion Transfer
+○ I can't believe you did this!
+■ 我真不敢相信你竟然做了這種事！(憤怒)
+■ 我真的不敢相信你會這麼做！(驚訝)
+主要難點
+
+===== Page 37 =====
+MT 方法
+● 預訓練-微調
+○ 先在大規模無標記資料上預訓練，然後針對特定語言對微調
+○ 範例：mBART、MASS
+● 多語言機器翻譯
+○ 訓練一個模型同時處理多個語言
+○ 代表作：M2M-100, NLLB-200
+○ 特點：直接跨語言翻譯，支援低資源語言
+
+===== Page 38 =====
+MT 方法
+● 知識蒸餾與輕量化
+○ 壓縮大型翻譯模型，讓翻譯系統可以在手機、邊緣裝置上運作
+○ 範例：TinyMT、Distilled Transformer
+● 生成式AI
+○ 新興趨勢：使用大型語言模型（如GPT、Gemini）處理翻譯，尤其在極少量學習
+（Few-shot/Zero-shot）場景有潛力
+
+===== Page 39 =====
+mBART vs BART
+mBART ≠ BART + multilingual data
+● 訓練語言數量不同
+○ BART：只訓練英文
+○ mBART：一次訓練了25種語言（第一版，後來還有更多版本），而且這些語言共享一個共同詞彙
+表
+● 詞彙表設計不同
+○ BART：
+■ 使用標準的英文Byte-Pair Encoding (BPE) 分詞器
+○ mBART：
+■ 使用多語言BPE（Multilingual BPE），設計時讓不同語言能共用同一套 subword units  （i.e.
+一個超大共通字典，不管拿哪一種語言來，都可以對應到這個字典裡的子詞）
+■ Ex: 這個 model 的 performance 真的非常 impressive
+■ 當模型學會一種語言，就能幫助理解另一種語言
+
+===== Page 40 =====
+● 訓練資料破壞方式略有不同
+○ BART：
+■ 會做各種破壞：隨機遮蔽、刪除字元、打亂字順、句子遮蔽等等
+○ mBART：
+■ 強調 span masking（遮蔽連續片段），更接近翻譯任務中所需要的無中生有與長度伸縮能
+力，以及常遇到的資訊缺失情境（例如日文經常省略主詞）
+● 輸出方式上額外加入了語言ID標籤
+○ BART：
+■ 輸入和輸出都只是一般句子
+○ mBART：
+■ 在每個輸入序列的最開頭加入一個語言ID token（例如 <zh>、<fr>），提示模型這是什麼語
+言的資料，且目標語言也用語言ID提示，避免模型錯亂
+mBART vs BART
+
+===== Page 41 =====
+● M2M-100 是由 Facebook AI（Meta AI）在 2020 年提出的一個多語言機器翻譯模
+型。
+M2M-100
+Traditional approach
+中文 ➔ 英語 ➔ 法語
+問題：會累積兩次翻譯誤差，而且中間
+語意容易扭曲。
+
+===== Page 42 =====
+● M2M-100 是由 Facebook AI（Meta AI）在 2020 年提出的一個多語言機器翻譯模
+型
+M2M-100
+Traditional approach
+中文 ➔ 英語 ➔ 法語
+M2M-100
+中文 ➔ 法語
+日語 ➔ 西班牙語
+斯瓦希里語 ➔ 越南語
+問題：會累積兩次翻譯誤差，而且中間
+語意容易扭曲。
+● 減少誤差
+● 翻譯更準確
+● 支援更多弱勢語言直接互譯
+
+===== Page 43 =====
+● 資料收集
+○ 直接收集任意語言對的資料，不只是中英、英法這種熱門語言對
+○ 使用自動對齊（bitext mining）技術，例如 LASER embeddings
+● 模型架構
+○ 基於大型Transformer架構
+○ 統一詞彙表，支援多語言
+○ 使用語言標籤告訴模型輸入與輸出語言是什麼
+● 訓練方式
+○ 以 source-target pairs 直接訓練，不經pivot language (e.g. English)
+○ 針對低資源語言，利用Back-translation結合單語資料來進行資料擴增
+技術設計
+
+===== Page 44 =====
+● 在訓練機器翻譯模型時，我們需要大量的平行語料（bitexts）
+問題：
+● 世界上很多語言根本沒有那麼多人工對齊的資料
+● 想靠人工整理所有語言對的翻譯資料，太貴也太慢
+所以就出現了bitext mining的概念，也就是：
+● 從大量未對齊的多語語料中，自動找出彼此是翻譯對應的句子
+Bitext Mining
+
+===== Page 45 =====
+LASER（Language-Agnostic SEntence Representations）是 Facebook 開發的一種
+多語言句子向量表示法，它有兩個關鍵特性：
+● 跨語言對齊：
+○ 同一個意思的句子，即使語言不同，它們的向量會靠得很近
+○ 例：
+■ "I love you"（英文）
+■ "Je t’aime"（法文）
+■ "我愛你"（中文）
+○ 在 LASER 的向量空間裡，這三句的 embedding 會在附近
+● 單一 encoder，支援多語言：
+○ 使用一個共享的 BiLSTM encoder，可同時編碼90多種語言，得到語言無關的句子向量
+LASER Embeddings
+
+===== Page 46 =====
+● 訓練目標：多國語言 → 單一語言
+○ 把這 90 多種語言，全部翻譯成英文
+● 架構設計
+○ 共用詞彙表 + BiLSTM Encoder + Max-Pooling + Decoder
+○ BiLSTM 讀完一個長短不一的句子後，會透過 Max-pooling 操作，將整句話壓縮成一個固定長度
+（1024 維）的單一向量 (Sentence Embedding)
+● 訓練方式
+○ 不告訴 Encoder 語言種類
+■ 不給予語言 ID 標籤
+○ 只看單一向量進行翻譯
+■ Decoder 被設計成無法去偷看 Encoder 每個字節的細節 （不使用attention）
+LASER Embeddings
+
+===== Page 47 =====
+1. 準備一堆未對齊的多語言句子（大量網頁爬文資料）
+a. 假設你有一份中文語料 + 一份西班牙語語料，但不確定哪些句子是翻譯關係。
+2. 用 LASER 把每句話編碼成向量
+3. 對這些向量進行 Nearest Neighbor Search
+a. 比如從每一句中文句子，找出在西文語料中最像的句子。
+4. 套用 Similarity Threshold 或雙向檢查（例如 mutual nearest neighbors）
+a. 如果中句 A 的最近鄰是西句 B，且 B 的最近鄰也是 A，就認為它們可能是翻譯對句
+Bitext Mining 如何進行
+
+===== Page 48 =====
+Back-translation
+利用現有的「弱勢到強勢」模型，自己創造出「強勢到弱勢」的訓練資料
+● Step 1: 現有模型 (Target → Source)
+○ 勉強能把斯瓦希里語 (弱勢)翻成英語 (強勢)的初始小模型
+○ 相對簡單，重點在理解
+○ 就像中文母語者，英文翻成中文相對簡單
+● Step 2: 生成偽資料
+○ 收集網路上大量的純英語資料
+○ 丟進步驟 1 的模型，讓它硬翻成斯瓦希里語
+○ 得到了帶有些微瑕疵的「合成斯瓦希里語 →真實英語」
+● Step 3: 反向訓練
+○ 將真實英語作為輸入，合成斯瓦希里語作為目標，去訓練一個「英語 → 斯瓦希里語」的模型
+○ 相對困難，重點在生成
+○ 就像中文母語者，中文翻成英文相對困難
+
+===== Page 49 =====
+Semantic Similarity / Paraphrase Detection
+● 語意相似度（Semantic Similarity）
+○ 判斷兩個句子或片語在語意上是否相近。
+○ 分數型輸出（如 0 ~ 1）
+● 同義句辨識（Paraphrase Detection）
+○ 判斷兩個句子是否為同義句。
+○ 分類型輸出（是 / 否）
+● 應用範例
+○ 問答系統的相似問句合併
+○ 自動改寫檢測（如學生作業剽竊）
+○ 客服聊天紀錄比對與歸類
+○ 多語翻譯後的一致性評估
+
+===== Page 50 =====
+傳統方法
+● TF-IDF + cosine similarity
+● Word embeddings (Word2Vec, GloVe) + cosine similarity
+● 雖然簡單，但難以處理語意變化與語序差異
+
+===== Page 51 =====
+進階方法
+● Bi-Encoder 架構
+○ 結構：兩個共享參數的編碼器，分別編碼句子，再進行相似度計算（如 Cosine similarity）
+○ 常見編碼器：LSTM、BERT
+○ 常見作法：
+■ SBERT：在 BERT 上加入 pooling 或全連接層進行句子向量建構
+■ SimCSE：透過對比學習（contrastive learning）優化語意嵌入
+○ 優點：可離線預先編碼句子，適合用於語意檢索與相似度比對任務
+● Cross-Encoder 架構
+○ 將句子 A、B 一起作為一組輸入（[CLS] Sentence A [SEP] Sentence B），BERT 一次性處理
+○ 透過 [CLS] 的向量進行分類，模型可考慮句子間交互資訊
+○ 優點：分類精度高，適合同義句判斷、NLI 等任務
+○ 缺點：無法離線建 embedding，推論速度慢
+
+===== Page 52 =====
+Bi-Encoder 架構
+● 架構核心
+○ 兩個輸入句子分別輸入相同權重的編碼器（e.g., BERT 或 LSTM）
+○ 這些編碼器產出兩個句子的語意向量（sentence embeddings）
+○ 最後透過 Cosine Similarity 或 Euclidean Distance 計算兩向量間的相似度
+● 特點
+○ 架構共享參數：保證輸入句子經過相同的語言處理轉換，減少偏差
+○ 可擴展性強：適用於檢索任務，可事先建好 embedding 庫進行快速匹配，不需要重新跑模型
+○ 不需要 joint input，句子可獨立預先處理 → 快速比對大量句子
+
+===== Page 53 =====
+SBERT
+● SBERT 特點（Sentence-BERT）
+○ 將 BERT 改造成 Bi-Encoder 架構（i.e. no joint input）
+○ 能將任意長度的句子轉換為固定維度的向量，可用於：
+■ Semantic Search
+■ Clustering
+■ Multilingual Sentence Matching
+○ 可針對特定任務/資料集進行微調
+○ 針對 BERT 輸出的各個 Token 向量，SBERT 探討了不同的池化方式（如取平均池化、最大池
+化）
+○ 與原始 BERT 相比，SBERT 更適合直接輸出向量做語意比對
+
+===== Page 54 =====
+SimCSE
+● SimCSE（Simple Contrastive Sentence Embedding） 是一種讓模型學習
+sentence embedding 的方法，它使用了Contrastive Learning 的訓練策略
+● 無監督版本：
+○ 使用“dropout as noise”進行對比學習
+○ 同一句子兩次輸入 BERT，僅因 dropout 差異形成正樣本對
+○ 負樣本為同一批 mini-batch 內的其他句子
+● 有監督版本：
+○ 使用 NLI 資料集中的 entailment/similar pairs 作為正樣本，以及contradiction pairs作為負樣本
+● 優點：
+○ 小資源環境下效果卓越 (僅需要 dropout 產生 embedding 擾動)
+○ 訓練快 (主要依靠 contrastive loss)，泛化性佳 (句子之間的相對語意位置，不是特定任務分類)
+
+===== Page 55 =====
+Contrastive Learning
+讓語意相似的句子向量彼此接近，語意不同的句子彼此遠離
+● Anchor：原始句子 A
+● Positive：與 A 語意相同的句子（如同一句或同義句）
+● Negative：與 A 不同語意的句子（如不相關句子）
+● 計算 Contrastive Loss，如 InfoNCE loss
+
+===== Page 56 =====
+Step 0
+Contrastive loss: 2.45
+Step 100
+Contrastive loss: 0.25
+
+===== Page 57 =====
+Dropout as Noise
+● SimCSE 把「同一句子經過兩次 BERT + dropout」當成語意相同的一對
+例如：
+● 句子 A = "The cat is sleeping on the bed."
+● 第一次經過 BERT（有 dropout）：得到向量 v1
+● 第二次再經過 BERT（有不同的 dropout）：得到向量 v2
+● 這兩個向量 v1, v2 來自同一句話，但略有差異
+→ 被視為 positive pair
+● 而在同一個 batch 裡其他句子的向量 → 被視為 negative pairs
+
+===== Page 58 =====
+評估指標與模型表現
+● Semantic similarity：Pearson / Spearman correlation (prediction vs ground
+truth)
+○ Pearson: 預測值與標註值之間的線性相關性
+○ Spearman: 預測值與標註值之間的相對排名一致性
+○ 人類和機器的評分標準可能不同，因此若我們只希望模型覺得最相似的句子，剛好也是人類覺
+得最相似的（排名一致），這時候就適合用 Spearman
+● Paraphrase detection：Accuracy, F1-score

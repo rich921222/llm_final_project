@@ -1,0 +1,794 @@
+===== Page 1 =====
+QA System
+
+===== Page 2 =====
+What is QA System?
+
+===== Page 3 =====
+Question Answering (QA)
+QA = 使用者輸入問題，系統自動從資料中找到正確答案。常見 QA 系統分類：
+● 按答案形式分類
+○ 抽取式 QA（Extractive）
+■ 在給定上下文中抽取一段文字為答案
+■ SQuAD
+範例問題：When was Apple
+founded?
+範例回答：1976
+模型行為 / 回答來源：模型預測答
+案的開始與結束位置（token
+span）
+
+===== Page 4 =====
+Question Answering (QA)
+QA = 使用者輸入問題，系統自動從資料中找到正確答案。常見 QA 系統分類：
+● 按答案形式分類
+○ 抽取式 QA（Extractive）
+■ 在給定上下文中抽取一段文字為答案
+■ SQuAD
+○ 生成式 QA（Generative）
+■ 重組上下文資訊，自然語言生成答案
+■ 常用於開放域問答或複雜推理
+■ T5, GPT, BART
+範例問題：How did Steve Jobs
+start Apple?
+範例回答：Steve Jobs started
+Apple in 1976 with Steve
+Wozniak.
+模型行為 / 回答來源：模型基於
+context 產生完整句子作答
+
+===== Page 5 =====
+Question Answering (QA)
+QA = 使用者輸入問題，系統自動從資料中找到正確答案。常見 QA 系統分類：
+● 按知識來源
+○ 封閉式 QA（Closed-book）
+■ 依賴模型內部知識作答（不查資料）
+■ 早期ChatGPT、GPT-3
+範例問題：Who is the CEO of
+Tesla?
+範例回答：Elon Musk
+模型行為 / 回答來源：從訓練過程
+學得的參數生成回答
+
+===== Page 6 =====
+Question Answering (QA)
+QA = 使用者輸入問題，系統自動從資料中找到正確答案。常見 QA 系統分類：
+● 按知識來源
+○ 封閉式 QA（Closed-book）
+■ 依賴模型內部知識作答（不查資料）
+■ 早期ChatGPT、GPT-3
+○ 開放式 QA（Open-domain）
+■ 先查資料再回答（需要 retrieval 模組）
+■ RAG
+範例問題：Where was the first
+iPhone released?
+範例回答：The first iPhone was
+released in the U.S. in 2007.
+模型行為 / 回答來源：從
+Wikipedia 等文件中擷取資訊後生
+成回答
+
+===== Page 7 =====
+Question Answering (QA)
+QA = 使用者輸入問題，系統自動從資料中找到正確答案。常見 QA 系統分類：
+● 其他常見QA任務類型
+○ 對話式問答（Conversational/Dialogue QA）
+■ 需根據上下文多輪對話理解和回答問題
+■ CoQA、QuAC
+○ 多跳問答（Multi-hop QA）
+■ 需要跨多個文檔/段落推理，整合多個資訊點才能回答問題
+■ HotpotQA
+QA 系統是多任務技術的集合體
+（理解、檢索、生成）
+
+===== Page 8 =====
+經典資料集與模型基準
+SQuAD
+● 抽取式QA
+● 每題附一段文章，答案位於文章片段中
+● 問題範例：When was Apple founded?
+● 文章片段："... Apple Inc. was founded in 1976 by ..."
+
+===== Page 9 =====
+經典資料集與模型基準
+Natural Questions
+● 抽取式 / 開放式QA
+● 來自真實 Google 搜尋問題，答案在 Wikipedia 中
+● 問題範例：Who won the NBA championship in 2020?
+● 文章片段："... The Los Angeles Lakers won the 2020 ..."
+
+===== Page 10 =====
+經典資料集與模型基準
+TriviaQA
+● 抽取式 / 開放式QA
+● 問題來自線上問答網站，文章為相關網頁內容
+● 問題範例：What is the capital of New Zealand?
+● 文章片段："... Wellington is the capital and second-most populous city ..."
+
+===== Page 11 =====
+經典資料集與模型基準
+HotpotQA
+● 多跳（multi-hop）QA
+● 答案需要整合多段資訊推理得出
+● 問題範例：Where was the founder of IKEA born?
+● 文章片段：
+○ Doc1: "IKEA was founded by Ingvar Kamprad."
+○ Doc2: "Kamprad was born in Småland, Sweden."
+
+===== Page 12 =====
+抽取式 QA 的模型架構
+● 輸入格式：[CLS] 問題 [SEP] 文章 [SEP]
+● 模型輸出：預測答案的開始與結束位置
+● 常見模型：
+○ BERT / RoBERTa
+○ ALBERT（較少參數，提升效能）
+○ XLNet（考慮排列組合）
+● 模型學習的是位置分佈而非直接生成答案
+
+===== Page 13 =====
+範例
+● 使用 BERT 預測答案區段（Answer Span）
+● Question：
+○ When was Apple founded?
+● Context：
+○ Apple Inc. is an American multinational technology company headquartered in Cupertino,
+California. It was founded in 1976 by Steve Jobs, Steve Wozniak, and Ronald Wayne.
+● 輸入
+○ [CLS] When was Apple founded? [SEP] Apple Inc. is an American multinational ... founded in
+1976 ... [SEP]
+● 模型預測結果（舉例）：
+○ 預測 Start token = 第 34 個字（"founded"）
+○ 預測 End token = 第 36 個字（"1976"）
+● 預測答案（經過一些精修）：
+○ 1976
+
+===== Page 14 =====
+QA System Evaluation
+● 傳統指標
+○ Exact Match (EM)
+○ F1 Score
+○ ROUGE
+● 語意評估指標
+○ BERTScore
+○ Sentence Similarity
+● RAG評估指標
+○ LLMs as judges (e.g. RAGAS)
+● 人工評估
+
+===== Page 15 =====
+RAG
+
+===== Page 16 =====
+為什麼需要 RAG？
+傳統 LLM 的限制：參考資料固定、生成幻覺（hallucination）嚴重
+● 大型語言模型在訓練後無法即時取得外部知識
+● 只能依賴訓練語料中學到的統計關聯來生成回答
+● 當使用者詢問的是模型未見過、或知識已過時的問題，模型可能會憑空捏造答案
+（hallucination）
+範例：
+● 問：「中興大學 2024 年的校長是誰？」
+○ GPT-3.5 訓練資料止於 2021，因此可能會回答過時或錯誤的人選
+● 問：「在民法中，債務人不履行契約的法律效果是什麼？」
+○ 如果模型只看過片段法條，可能會組出類似法律用語但不具備法律邏輯的內容
+
+===== Page 17 =====
+為什麼需要 RAG？
+Fine-tuning 成本高、靈活性低
+● Fine-tuning 需重新訓練整個模型或模型的一部分，加入新的知識
+● 缺點如下：
+○ 需要大量 GPU 資源與時間
+○ 需人工清洗與標註資料
+○ 每次更新都要重新訓練，不易維護
+範例：
+● 公司內部導入 LLM 想要回答「人資制度」相關問題，若走 Fine-tuning 路線：
+○ 必須蒐集內部文件（如職員手冊）
+○ 整理為 QA 對應格式
+○ 將其微調進模型
+○ 之後手冊更新又得重訓一次
+非常不靈活
+
+===== Page 18 =====
+為什麼需要 RAG？
+需要一種可以查資料的生成方式
+● RAG就是為了讓模型先查資料再回答
+● 可即時更新知識，無需重新訓練模型
+範例：
+● 使用者問：「本公司員工休假規定是什麼？」
+→ 系統將問題轉成 embedding
+→ 從向量資料庫中找出《員工手冊》相關段落
+→ 把這些段落餵給生成模型，產生符合政策的回答
+
+===== Page 19 =====
+RAG 是什麼？
+● Retrieval-Augmented Generation = 檢索 + 生成
+● Retriever（檢索器）：
+○ 根據使用者查詢，從外部資料庫中找出語意相似的文本片段（例如：FAQ、法條、PDF文件段落
+等）
+● Generator（生成器）：
+○ 將檢索到的內容作為上下文，與使用者問題一起輸入到 LLM 中，產生回答。常見模型如 GPT、
+LLaMA、T5 等。
+● 輸入查詢 → 向量化 → 近似查找相關內容 → 回答生成
+
+===== Page 20 =====
+Example
+使用者提問：「請問公司出差補助的標準是多少？」
+● Retriever：查詢被轉為向量，系統到「內部人資手冊」的向量資料庫中查找相似段
+落
+○ 「每人每日補助上限為新台幣 1,200 元」
+○ 「國內交通費需憑票核銷，住宿補助另計」
+● Generator：將上述段落 + 原始提問一起輸入 LLM
+○ 「根據公司內部人資手冊，出差補助每日上限為 1,200 元，並需提供憑證。住宿與交通費用則另
+行核銷。」
+
+===== Page 21 =====
+Retrieval Augmented Generation
+
+===== Page 22 =====
+Retrieval Augmented Generation
+
+===== Page 23 =====
+Vector Database
+● 儲存高維度向量資料的資料庫
+○ 這些向量資料通常是來自於自然語言、圖像、影片等經過模型轉換後的 embeddings
+● 不像傳統關聯式資料庫用主鍵查找資料，而是用向量之間的距離（如餘弦相似
+度）來找出語意相似的內容
+● 範例：FAISS, Qdrant, Weaviate
+
+===== Page 24 =====
+資料預處理
+Garbage In, Garbage Out
+預處理 往往是最耗時、但也最能拉開系統差距的關鍵階段
+幾個重要步驟:
+● Data Parsing & Extraction
+● Data Cleaning
+● Chunking
+● Embedding
+● Metadata Attachment & Indexing
+
+===== Page 25 =====
+Data Parsing & Extraction
+● 純文字提取
+○ 將 PDF、Word、HTML、Markdown 等檔案轉換為純文字
+● 版面分析
+○ 識別文件中的標題層級、段落邊界、頁首頁尾，甚至把複雜的表格轉譯為 Markdown 格式，以保
+留原始的邏輯結構
+● 多模態處理
+○ 遇到圖片或圖表時，呼叫 OCR 或 VLM（視覺語言模型）提取文字與生成圖表摘要
+
+===== Page 26 =====
+版面分析
+又稱文件理解（Document Understanding），目的是要告訴機器人類如何閱讀文件
+由左至右，由上到下
+
+===== Page 27 =====
+
+
+===== Page 28 =====
+視為同一行
+
+===== Page 29 =====
+版面分析
+Block Detection / Segmentation
+Element Classification
+Reading Order Determination
+Structured Output
+
+===== Page 30 =====
+Block Detection / Segmentation
+● 掃描整個頁面，找出所有有內容的矩
+形區域（Bounding Boxes）
+● 這時系統還不知道這些區塊是什麼，
+只知道那裡有墨水或像素
+
+===== Page 31 =====
+Element Classification
+● 系統接著要判定這些矩形區塊的身
+分
+● 它會將區塊標記為：Title、
+Paragraph、Table、Figure、Caption
+或是應當被過濾掉的雜訊（如 頁首/
+頁尾、頁碼）
+
+===== Page 32 =====
+Reading Order Determination
+● 機器需要判斷人類眼睛是怎麼移動
+的。
+● 例如：標題 → 摘要 →左欄文字 →
+右欄文字，而不是粗暴地由左至右、
+由上至下（這樣會把左右兩欄的句子
+硬拼在一起）
+
+===== Page 33 =====
+Structured Output
+● 根據前面的分類與順序，將提取出的
+內容轉換成 Markdown 或 HTML 等
+結構化格式，保留原始文件的語意階
+層
+大型語言模型評估指南
+楊小明
+本文介紹了 RAG 系統...
+隨著 AI 的發展，評估 這張表顯示了我
+們
+RAG 系統變得越來 在不同資料集上
+的
+越重要。傳統的檢索 測試結果。模型
+A
+方法已經無法滿足 的準確率最高，達
+複雜推理的需求。 到了 95%。
+[圖片亂碼] 模型A 95% 模型B 80%
+因此我們提出了新 綜合以上數據，我
+的圖譜架構。 們認為...
+Page 1
+未經分析的範例
+
+===== Page 34 =====
+Structured Output
+# 大型語言模型評估指南
+**作者：** 楊小明
+## 摘要
+本文介紹了 RAG 系統...
+## 1. 簡介 (左欄內文)
+隨著 AI 的發展，評估 RAG 系統變得越來越重要。傳統的檢索方法已
+經無法滿足複雜推理的需求。
+![系統架構圖](image_001.png)
+*圖 1：本研究提出的進階 RAG 系統架構*
+因此我們提出了新的圖譜架構。
+## 2. 實驗結果 (右欄內文)
+這張表顯示了我們在不同資料集上的測試結果。模型 A 的準確率最高
+，達到了 95%。
+| 模型名稱 | 準確率 | 召回率 |
+| :--- | :--- | :--- |
+| 模型 A | 95% | 92% |
+| 模型 B | 80% | 78% |
+綜合以上數據，我們認為...
+Markdown 結構化 (適合餵給LLM)
+JSON 結構化 (適合Chunking階段)
+
+===== Page 35 =====
+版面分析工具
+● Rule-based
+○ 利用 PDF 檔案底層的字元座標 (X, Y)、字體大小與字型粗細來寫判斷規則。例如：字體最大且
+置中的是標題、Y 座標間距小的是同一段落
+○ e.g. PyMuPDF
+○ 速度極快、幾乎不耗算力；但遇到掃描檔（沒有底層文字座標）、複雜的雙欄或不規則排版時，規
+則就會徹底失效
+● CV-based / Deep Learning
+○ 把 PDF 轉成圖片，把排版分析當作物件偵測任務來做
+○ e.g. YOLO, LayoutLM, PaddleOCR
+● Vision-Language Model, VLM
+○ 直接使用VLM，如 ChatGPT 或 Gemini，將文件截圖丟給它，下 Prompt 請它將內容轉成
+Markdown 格式
+○ 效果最好，但運算成本高且處理速度較慢
+
+===== Page 36 =====
+Data Cleaning
+● 提取出來的文字通常夾雜大量雜訊
+● 刪除多餘的空白、換行符號、特殊的亂碼字符
+● 移除不具資訊價值的頁碼、浮水印、或是網頁抓取時殘留的 HTML 標籤、導覽列
+文字
+● 將特定的格式統一，例如日期格式統一、繁簡轉換、全半形標點符號統一等
+
+===== Page 37 =====
+Chunking
+● LLM 和 Embedding 模型都有 Context Window的長度限制
+● 必須將長篇文章切分成多個較小的Chunks
+● 切得太大，容易包含過多雜訊導致檢索不精準；切得太小，又會喪失上下文的語
+意連貫性
+
+===== Page 38 =====
+常見策略
+● Fixed-size chunking
+○ 例如設定每 200 個 Token 切一塊，並設定一定的Overlap（例如 50 個 Token）以防止一個完整的
+句子被硬生生從中間截斷
+● Recursive chunking
+○ 按照特定標點符號的優先順序（例如先依據段落 \n\n 切，若還是太大則依據句號 。 切，最後才
+依據逗號 , 切），盡可能保持句子的完整性
+● Semantic chunking
+○ 利用小型的 Embedding 模型計算相鄰句子的語意相似度，如果兩句話的意思發生了明顯的轉
+折（Cosine Similarity 低於某個閾值），就切斷
+○ 能確保同一個 Chunk 都在討論同一個主題
+
+===== Page 39 =====
+Embeddings
+
+===== Page 40 =====
+Multimodel Vector DB
+● Clip Model (Contrastive Language-Image Pre-Training)
+● Trained on image & text
+Source: https://github.com/openai/CLIP
+
+===== Page 41 =====
+Image Querying
+
+===== Page 42 =====
+Text Querying
+
+===== Page 43 =====
+Metadata Attachment & Indexing
+● 將生成的向量存入向量資料庫時，除了向量本身，還會搭配 metadata
+● e.g. 文件檔名、作者、發布日期、來源 URL、所在的章節標題、甚至是該區塊的
+上一塊與下一塊的 ID
+● Metadata 是進行進階檢索的核心
+○ 例如，若使用者問「2025 年這篇論文的結論是什麼？」，系統可以先透過 metadata 過濾掉所有
+2025 年以外或非論文的檔案，再進行向量相似度比對，可以大幅提升檢索的精準度與速度
+
+===== Page 44 =====
+Retriever
+功能：
+● 根據使用者的Query從外部知識庫中擷取語意最相關的資料段落
+● 通常透過向量化查詢 + ANN 完成
+● 輸出格式通常為多段文字（Top-K passages）
+流程步驟：
+1. 使用語言模型（如 Sentence-BERT）將 Query 向量化
+2. 在向量資料庫中進行相似度搜尋（例如：找出最靠近的前 3 段落）
+3. 將這些段落傳給 Generator 做生成
+Retriever 常見工具：
+● 向量資料庫：FAISS、Qdrant、Weaviate
+● 向量模型：Sentence-BERT、MiniLM、Instructor-XL、OpenAI Embeddings
+
+===== Page 45 =====
+Approximate Nearest Neighbor, ANN
+● 由於高維度向量空間的計算非常耗時，向量資料庫會使用 ANN 技術（如
+HNSW、IVF、PQ 等）來大幅加速查詢：
+○ 犧牲一點查詢精度，換取大幅提升查詢速度
+○ 常見的演算法如：
+■ HNSW（Hierarchical Navigable Small World）
+■ IVF（Inverted File Index）
+■ PQ（Product Quantization）
+
+===== Page 46 =====
+Hierarchical Navigable Small World
+概念：
+● 建立一個分層圖結構，每層都是一個小
+世界圖（Small World Graph），高層維
+持全局連結，低層細節更密集。
+● 查詢時，從上層開始逐層往下，逐步靠
+近目標
+優點：
+● 查詢速度快，準確率高
+● 適合中大型資料集（數萬到數百萬筆）
+https://www.pinecone.io/learn/series/faiss/hnsw/
+
+===== Page 47 =====
+Hierarchical Navigable Small World
+概念：
+● 建立一個分層圖結構，每層都是一個小
+世界圖（Small World Graph），高層維
+持全局連結，低層細節更密集
+● 查詢時，從上層開始逐層往下，逐步靠
+近目標
+優點：
+● 查詢速度快，準確率高
+● 適合中大型資料集（數萬到數百萬筆）
+就像從地圖的世界地圖開始，逐層放大到
+城市圖、街道圖，最終找到最近的店家
+https://www.pinecone.io/learn/series/faiss/hnsw/
+
+===== Page 48 =====
+Inverted File Index
+概念：
+● 將所有向量分成多個區域（cell），查詢時只
+在最接近的幾個區域內比對。
+● 使用 K-means 來預先將資料切成不同區
+塊。
+優點：
+● 節省查詢成本，不必遍歷全部資料
+● 適合高維度向量的大型資料集
+https://docs.oracle.com/en/database/oracle/oracle-database/23/vecse/understand-inverted-file-flat-vector
+-indexes.html
+
+===== Page 49 =====
+Inverted File Index
+概念：
+● 將所有向量分成多個區域（cell），查詢時只
+在最接近的幾個區域內比對。
+● 使用 K-means 來預先將資料切成不同區
+塊。
+優點：
+● 節省查詢成本，不必遍歷全部資料
+● 適合高維度向量的大型資料集 好比把整座圖書館依主題分區（法律區、醫
+學區），你要找一本「關於醫療法律的書」，
+就先進醫學區與法律區，減少遍歷全部書
+架的成本
+https://docs.oracle.com/en/database/oracle/oracle-database/23/vecse/understand-inverted-file-flat-vector
+-indexes.html
+
+===== Page 50 =====
+Product Quantization
+概念：
+● 將每個高維度向量切成多段子向
+量，並對每段分別進行量化編碼。
+● 查詢時只比對子向量的近似代表，
+達到壓縮資料、加速比對的目的。
+優點：
+● 節省儲存空間（將向量壓縮成位元
+編碼）
+● 適合儲存與查詢超大規模資料集
+https://towardsdatascience.com/similarity-search-product-quantization-b2a1a6397701/
+
+===== Page 51 =====
+Product Quantization
+概念：
+● 將每個高維度向量切成多段子向
+量，並對每段分別進行量化編碼。
+● 查詢時只比對子向量的近似代表，
+達到壓縮資料、加速比對的目的。
+優點：
+● 節省儲存空間（將向量壓縮成位元
+編碼）
+● 適合儲存與查詢超大規模資料集
+https://towardsdatascience.com/similarity-search-product-quantization-b2a1a6397701/
+像是用大方向來做快速估算：你找一張臉，
+先比膚色、再比眼距、再比嘴型，各部份做
+粗略匹配，不逐像素對照
+
+===== Page 52 =====
+Generator
+功能：
+● 接收使用者查詢與 Retriever 擷取的內容
+● 將它們結合起來輸入語言模型，生成符合語意、上下文的自然語言回答
+● 負責回應的流暢性、完整性與推理能力
+Generator 通常為：
+● 預訓練的 LLM，如 GPT、LLaMA、T5、Flan-T5、Mistral 等
+● 這些模型使用“Query + Context”當成 Prompt，並生成對應答案
+
+===== Page 53 =====
+Example
+Question: How do I reset my password?
+Context:
+1. To reset your password, go to Settings > Security.
+2. You can also click ‘Forgot Password’ on the login page.
+Answer:
+→ （模型開始生成）
+
+===== Page 54 =====
+RAG 與 Fine-tuning 比較
+Fine-tuning RAG
+可更新性 需重新訓練 可即時查詢
+成本 高 低
+知識更新 難 容易
+幻覺控制 部分有效 可降低風險
+
+===== Page 55 =====
+RAG 與 Fine-tuning 比較
+Fine-tuning RAG
+可更新性 需重新訓練 可即時查詢
+成本 高 低
+知識更新 難 容易
+幻覺控制 部分有效 可降低風險
+RAG是否還有幻覺問題？
+
+===== Page 56 =====
+為什麼 RAG 仍有可能有幻覺？
+檢索內容錯誤或不足
+● 如果 Retriever 沒有找到真正相關的內容（例如查錯段落或漏掉關鍵資訊）
+，Generator 只能憑片段或無關內容硬湊答案
+● 幻覺來源：Retriever 找錯 → Generator 也會跟著亂講
+例子：
+● 問：「請問休假規定中的特休天數是多少？」
+● Retriever 找到的段落只有「加班費算法」，Generator 只好自由發揮回答「一般為
+7 天」，但實際錯誤
+
+===== Page 57 =====
+為什麼 RAG 仍有可能有幻覺？
+Generator 忽略上下文（常見於強模型）
+● 即使 Retriever 提供了正確段落，生成模型仍可能沒好好看懂上下文或只拿一部
+分來回答
+● 強大的 LLM 有時反而傾向於自己推測，而不是老實照段落回答
+例子：
+● 上下文段落：「公司規定特休年限依到職年資計算，前兩年為 3 天」
+● 但模型卻回答：「每年固定 7 天」——基於台灣勞基法
+
+===== Page 58 =====
+為什麼 RAG 仍有可能有幻覺？
+使用者提問模糊
+● 問句本身若語意不清、模糊或語法錯誤，也會導致模型難以正確理解並匹配正確
+的段落。
+例子：
+● 問：「可不可以請？」（沒指明請什麼）→ 系統可能取回錯誤類型的假別段落 → 幻
+覺式生成
+
+===== Page 59 =====
+進階RAG
+
+===== Page 60 =====
+檢索前優化
+讓使用者的問題變得更適合檢索
+● Query Rewriting
+○ 利用 LLM 將使用者的問題重新表述為更精準、包含更多領域關鍵字的查詢
+● Query Expansion
+○ 產生不同版本的query
+● Query Decomposition
+○ 將單一問題拆解成多個子問題 (Sub-queries)，或是從不同角度生成多個相似的查詢，分別進行
+檢索後再將結果合併
+● Metadata filter
+○ 用額外資訊過濾掉不相關段落
+
+===== Page 61 =====
+● Coreference Resolution
+○ 模型先根據歷史對話補全完整問題 → 再檢索
+○ 例如：「那它的利息怎麼算？」→ 重寫為：「定期存款的利息怎麼算？」
+● HyDE (Hypothetical Document Embeddings)
+○ 問題(短)跟答案(長)，在向量空間裡的距離其實有很遙遠 （Semantic Gap）
+○ 當使用者提出一個簡短的問題時，HyDE 不直接拿問題去檢索，而是先請 LLM產生一個假答案
+○ 因為這個假答案的篇幅、句型和用詞，在向量空間中通常會比短問題更接近真實的長篇參考文
+件
+○ Query → 什麼是 LLM 的 Lost in the middle 現象？
+○ Hypothetical document → Lost in the middle（迷失在中間）現象是指大型語言模型 (LLM) 在處
+理非常長的上下文時.....
+○ True document → 根據 Liu 等人的實驗研究指出，當輸入給語言模型的上下文長度（Context
+Window）增加時，模型提取關鍵資訊的效能會呈現 U 型曲線。具體而言，...
+Query Rewriting
+
+===== Page 62 =====
+● 單一的查詢即使寫得再好，也可能因為詞彙不匹配而漏掉關鍵資訊
+● Multi-Query Generation
+○ Query → LLM 評估方法
+○ Exapnsion → 大型語言模型評估指標、Generative AI evaluation metrics、如何衡量 LLM 表現
+● Keyword Injection
+○ 補上專業術語
+○ Query → 如何長肌肉
+○ Keyword exapnsion → 肌肥大 (Hypertrophy)、蛋白質攝取 (Protein intake)
+Query Expansion
+
+===== Page 63 =====
+Query Decomposition
+● Sub-queries
+○ Query → 比較 GraphRAG 和 Naive RAG 在處理跨文件實體關聯時的效能差異？
+○ Sub1 → 什麼是 GraphRAG？它如何處理實體關聯？
+○ Sub2 → Naive RAG 如何處理實體關聯？
+○ Sub3 → 這兩者在跨文件處理上的效能評估數據為何？
+● Step-back prompting
+○ Query → 為什麼我的 x86 組合語言程式碼裡，連續執行了五次 PUSH EAX，然後只執行了兩次
+POP EBX 就直接呼叫 RET，程式會發生 Segmentation Fault ？
+○ Step-back Question → 在 x86 組合語言中，Stack的運作機制是什麼？以及 RET 指令在底層是
+如何與 ESP 互動的？
+○ Retrieved answer → Stack 是一個後進先出 (LIFO) 的記憶體區段。呼叫副程式時，系統會自動
+將『返回位址』Push 到 Stack 頂部。當程式執行 RET 指令時...
+○ Final answer: Decoder(step-back question + retrieved answer) → 你的程式會崩潰，根本原因
+是...
+
+===== Page 64 =====
+Metadata Filter
+● 每段文件除了內容本身（text embedding），通常還會有一些「額外欄位」，例如：
+○ 類別（例如：FAQ / 條款 / 使用說明）
+○ 來源（PDF 名稱 / 頁碼）
+○ 更新日期
+○ 主題標籤（如：「人資」、「法務」、「客服」）
+● 透過這些 metadata，我們可以只檢索特定範圍內的資料，避免不相關資料干擾
+結果
+● 應用場景：多類型文件混在一起時（例如 PDF + FAQ）
+
+===== Page 65 =====
+Example
+Query：「公司的病假規定是什麼？」
+● 資料庫中有很多資料，有些來自「法務文件」、有些是「人資手冊」
+● 用 metadata filter：
+○ 只查「類別=人資」的段落
+○ 只查「文件名稱=員工手冊.pdf」
+● 這樣可以避免模型檢索到「法律案例」或「產品保固條款」來亂答
+
+===== Page 66 =====
+檢索階段優化
+優化從資料庫中撈取資訊的精準度與覆蓋率
+● Hybrid Search
+○ 結合傳統的關鍵字檢索（如 BM25，擅長精確匹配專有名詞）與密集向量檢索（Dense Retrieval，
+擅長語意理解），並透過Weight Fusion, RRF等演算法合併結果
+
+===== Page 67 =====
+如何融合？
+● Weighted Fusion
+○ 先對不同檢索器得到的分數進行正規化
+○ 必須針對特定的資料集去微調找出最佳的α值
+● RRF (Reciprocal Rank Fusion)
+○ R: 檢索器的集合（例如：{BM25, dense vector}）
+○ r: 其中一個檢索器
+○ rankr(d): 文件 d 在檢索器 r 中排出的名次（第 1 名就是 1，第 2 名就是 2）
+○ k:平滑常數（通常預設為 60），避免排名第 1 的文件權重過高而碾壓其他結果
+
+===== Page 68 =====
+檢索後優化
+撈出大量文件後，必須在放入 LLM 的 Context Window 前進行過濾與排序
+● Reranking
+○ 根據查詢與檢索文件的相關性重新打分排序，將最相關的文本推到最前面
+● Context Compression/Filtering
+○ 剔除檢索文件中的冗餘資訊，只保留能回答問題的核心句子，以節省 Token 消耗並提升 LLM 回
+答的準確度
+
+===== Page 69 =====
+Re-Ranking
+● 向量搜尋可能會找出語意相近但不一定最有用的段落。Re-ranking 是對這些初
+步找出的段落再做排序，根據它們與問題的關聯性調整先後順序。
+● 方式：
+○ 使用 BERT 對「Query + Passage」組合打分
+■ Ex: [CLS] 特休假最多可以請幾天？ [SEP] 本公司員工每年可享 7 天特休假 [SEP]
+○ 重新安排前 K 筆段落，把最有用的放前面
+● 應用場景：Retriever 回傳的 Top-k 品質參差不齊時
+
+===== Page 70 =====
+Example
+Query：「公司的病假規定是什麼？」
+Retriever 找到 5 段資料：
+● 「病假最長不得超過三日」（打分 0.95）
+● 「請假須提前一天申請」（打分 0.65）
+● 「員工旅遊補助方式」（打分 0.15）
+→ 使用 Re-ranker 會把 1 放最前、3 被過濾掉，提高 Generator 使用正確段落的機
+率。
+
+===== Page 71 =====
+Context Compression/Filtering
+● 將文本中的停用詞、冗言贅字剔除
+● 壓縮前： 根據 Stephen 教授在 2025 年 7 月於日本札幌發表的最新研究指出，
+自動化文獻驗證工具能有效提升效率...
+● 壓縮後： Stephen 2025年7月 日本札幌研究：自動化文獻驗證工具提升效率...
+
+===== Page 72 =====
+多輪對話下的檢索難題
+● 在「多輪對話」中，每一句話的意思都跟上一輪有關
+● 但大多數向量檢索系統是單輪設計：每次只根據目前的提問來查資料，忽略上下
+文
+會遇到的問題：
+● 使用者問：「那它的利息怎麼算？」
+→ 沒有上文「它是什麼？」就查不到對的內容
+● 模型可能誤檢索到無關資料，或根本抓不到參考段落
+
+===== Page 73 =====
+多輪對話下的檢索難題
+解法方向：
+● Query rewriting：
+○ 模型先根據歷史對話補全完整問題 → 再檢索
+■ 例如：「那它的利息怎麼算？」→ 重寫為：「定期存款的利息怎麼算？」
+● 對話上下文壓縮成摘要 Query：
+○ 多輪對話整理成一段濃縮摘要後再查詢
+
+===== Page 74 =====
+Modular RAG
+
+===== Page 75 =====
+Gao, Y., Xiong, Y., Gao, X., Jia, K., Pan, J., Bi, Y., ... &
+Wang, H. (2023). Retrieval-augmented generation for
+large language models: A survey. arXiv preprint
+arXiv:2312.10997, 2(1), 32.
+● Search Module
+○ 使用外部工具搜尋資料
+● Memory Module
+○ 讓 RAG 系統具備跨輪對話的長
+期與短期記憶，能夠參考過去的
+檢索紀錄與對話來修正當前的檢
+索策略
+● Routing Module
+○ 根據問題的不同， 決定應該使用
+哪個資料來源或模組來檢索資料
+(e.g. RAG or GraphRAG)
+
+===== Page 76 =====
+GraphRAG
+
+===== Page 77 =====
+傳統 RAG 的痛點
+● 無法回答宏觀的全局問題
+○ 例如：這 100 份財報中，最常被提及的潛在風險是什麼？
+● 多跳推理能力弱
+○ 如果問題需要把 A 文件中的線索與 B 文件中的線索拼湊起來才能解答，傳統 RAG 往往會失敗
+，因為這些碎片在向量空間中未必相近
+
+===== Page 78 =====
+Edge, D., Trinh, H., Cheng, N., Bradley, J.,
+Chao, A., Mody, A., ... & Larson, J. (2024).
+From local to global: A graph rag approach
+to query-focused summarization. arXiv
+preprint arXiv:2404.16130.
+
+===== Page 79 =====
+查詢階段
+● Local search
+● Ex: A 教授與 B 實驗室有哪些合作計畫？
+○ 抓出關鍵實體 → Ａ教授和B實驗室
+○ 到知識圖譜中，找到代表A 教授和B 實驗室的節點
+○ 沿著Edges向外找出與他們有直接或間接關聯的其他節點與資訊
+○ 把這些節點、關係描述，以及背後對應的原始文本區塊一起交給generator
+● Global search
+● Ex: 這 500 份文獻中，目前該領域最大的三個挑戰是什麼？
+○ 讀取某個層級(自訂)所有的社群摘要
+○ 假設有20個社群摘要，再根據這20份摘要產出20個局部答案，並給每個答案一個關聯度評分
+○ 把分數最高的幾個局部答案收集起來，統整生成最終的完整回答
