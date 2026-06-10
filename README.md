@@ -75,6 +75,38 @@ python rag_answer.py "Substitution Cipher 的總可能組合數大約是多少�
 python rag_answer.py "幾月幾號是期中考？" --llm extractive
 ```
 
+### CSV 批次輸入
+
+若老師提供的測資是 CSV，可使用 `--input_csv`。CSV 每列第一欄會被視為一個問題。
+
+```powershell
+python rag_answer.py input.csv --llm openai --input_csv
+```
+
+若沒有在命令列輸入問題，使用 CSV 模式時會要求輸入 CSV 路徑：
+
+```powershell
+python rag_answer.py --llm openai --input_csv
+```
+
+預設會輸出：
+
+```text
+input_answers.csv
+```
+
+輸出欄位包含：
+
+- `question`：原始問題
+- `answer`：系統回答
+- `sources`：檢索到的來源頁面
+
+也可以指定輸出檔名：
+
+```powershell
+python rag_answer.py input.csv --llm openai --input_csv --output_csv result.csv
+```
+
 課程資訊類問題會自動將 `c0_course_introduction.pdf` 前 6 頁加入 context，例如：
 
 ```powershell
@@ -138,6 +170,7 @@ python rag_answer.py "幾月幾號是期中考？"
 python rag_answer.py "tfidf計算方法"
 python rag_answer.py "教這門課的人是誰" --llm openai
 python rag_answer.py "教這門課的人是誰" --llm openai --show-query
+python rag_answer.py input.csv --llm openai --input_csv
 ```
 
 ## 注意事項

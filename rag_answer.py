@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import os
 import re
 import sys
@@ -275,6 +276,16 @@ def answer_with_openai(question: str, context: str, model: str, allow_general_an
     return response.output_text
 
 
+def build_retrieval_index(
+    data_path: Path,
+    window_size: int,
+) -> tuple[list[dict[str, object]], list[dict[str, object]], list[dict[str, float]], dict[str, float]]:
+    pages = load_pages(data_path)
+    documents = build_page_windows(pages, window_size)
+    doc_vectors, idf = build_tfidf_vectors(documents)
+    return pages, documents, doc_vectors, idf
+
+
 def rewrite_query_with_openai(question: str, model: str) -> str:
     try:
         from openai import OpenAI
@@ -311,15 +322,14 @@ def rewrite_query_with_openai(question: str, model: str) -> str:
 def retrieve(
     question: str,
     retrieval_query: str,
-    data_path: Path,
+    pages: list[dict[str, object]],
+    documents: list[dict[str, object]],
+    doc_vectors: list[dict[str, float]],
+    idf: dict[str, float],
     top_k: int,
-    window_size: int,
     translator: str,
     allow_overlap: bool,
 ) -> tuple[str, list[tuple[float, dict[str, object]]]]:
-    pages = load_pages(data_path)
-    documents = build_page_windows(pages, window_size)
-    doc_vectors, idf = build_tfidf_vectors(documents)
     expanded_query = prepare_query(retrieval_query, translator)
     results = search(expanded_query, documents, doc_vectors, idf, top_k, allow_overlap)
 
@@ -331,6 +341,81 @@ def retrieve(
     return expanded_query, results
 
 
+def answer_question(
+    question: str,
+    pages: list[dict[str, object]],
+    documents: list[dict[str, object]],
+    doc_vectors: list[dict[str, float]],
+    idf: dict[str, float],
+    args: argparse.Namespace,
+    llm_mode: str,
+) -> tuple[str, str, list[str]]:
+    should_rewrite_query = args.rewrite_query == "openai" or (
+        args.rewrite_query == "auto" and llm_mode == "openai"
+    )
+    retrieval_query = rewrite_query_with_openai(question, args.model) if should_rewrite_query else question
+
+    expanded_query, results = retrieve(
+        question,
+        retrieval_query,
+        pages,
+        documents,
+        doc_vectors,
+        idf,
+        args.top_k,
+        args.translator,
+        args.allow_overlap,
+    )
+
+    if args.show_query:
+        if retrieval_query != question:
+            print(f"Rewritten query: {retrieval_query}")
+        print(f"Expanded query: {expanded_query}\n")
+
+    if not results:
+        return expanded_query, "我找不到相關講義頁面，因此無法回答。", []
+
+    context = build_context(results, args.max_context_chars)
+
+    if args.show_context:
+        print("Retrieved context:")
+        print(context)
+        print()
+
+    if llm_mode == "openai":
+        answer = answer_with_openai(question, context, args.model, args.allow_general_answer)
+    else:
+        answer = answer_extractive(question, expanded_query, results, args.max_sentences)
+
+    return expanded_query, answer, collect_sources(results)
+
+
+def load_csv_questions(path: Path) -> list[str]:
+    questions: list[str] = []
+
+    with path.open("r", encoding="utf-8-sig", newline="") as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if not row:
+                continue
+            question = str(row[0]).strip()
+            if question:
+                questions.append(question)
+
+    return questions
+
+
+def default_output_csv_path(input_path: Path) -> Path:
+    return input_path.with_name(f"{input_path.stem}_answers.csv")
+
+
+def write_csv_answers(path: Path, rows: list[dict[str, str]]) -> None:
+    with path.open("w", encoding="utf-8-sig", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=["question", "answer", "sources"])
+        writer.writeheader()
+        writer.writerows(rows)
+
+
 def main() -> None:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
@@ -338,6 +423,8 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description="Retrieve lecture pages and answer with a simple RAG pipeline.")
     parser.add_argument("question", nargs="*", help="question to answer")
+    parser.add_argument("--input_csv", action="store_true", help="treat the positional argument as a CSV file of questions")
+    parser.add_argument("--output_csv", type=Path, help="output CSV path for --input_csv mode")
     parser.add_argument("-k", "--top-k", type=int, default=TOP_K, help="number of retrieved page windows")
     parser.add_argument("--window-size", type=int, default=WINDOW_SIZE, help="number of adjacent pages per document")
     parser.add_argument("--data", type=Path, default=DATA_PATH, help="path to JSONL page data")
@@ -378,55 +465,67 @@ def main() -> None:
     if args.window_size < 1:
         raise SystemExit("--window-size must be at least 1")
 
-    question = " ".join(args.question).strip()
-    if not question:
-        question = input("Question: ").strip()
-
     llm_mode = args.llm
     if llm_mode == "auto":
         llm_mode = "openai" if os.environ.get("OPENAI_API_KEY") else "extractive"
 
-    should_rewrite_query = args.rewrite_query == "openai" or (
-        args.rewrite_query == "auto" and llm_mode == "openai"
-    )
-    retrieval_query = rewrite_query_with_openai(question, args.model) if should_rewrite_query else question
-
-    expanded_query, results = retrieve(
-        question,
-        retrieval_query,
+    pages, documents, doc_vectors, idf = build_retrieval_index(
         args.data,
-        args.top_k,
         args.window_size,
-        args.translator,
-        args.allow_overlap,
     )
 
-    if args.show_query:
-        if retrieval_query != question:
-            print(f"Rewritten query: {retrieval_query}")
-        print(f"Expanded query: {expanded_query}\n")
+    user_input = " ".join(args.question).strip()
+    if args.input_csv:
+        csv_path = Path(user_input) if user_input else Path(input("Input CSV path: ").strip())
+        if not csv_path.exists():
+            raise SystemExit(f"Input CSV not found: {csv_path}")
 
-    if not results:
-        print("我找不到相關講義頁面，因此無法回答。")
+        questions = load_csv_questions(csv_path)
+        if not questions:
+            raise SystemExit(f"No questions found in CSV: {csv_path}")
+
+        output_csv = args.output_csv or default_output_csv_path(csv_path)
+        output_rows: list[dict[str, str]] = []
+
+        for index, question in enumerate(questions, start=1):
+            print(f"[{index}/{len(questions)}] {question}")
+            _expanded_query, answer, sources = answer_question(
+                question,
+                pages,
+                documents,
+                doc_vectors,
+                idf,
+                args,
+                llm_mode,
+            )
+            output_rows.append(
+                {
+                    "question": question,
+                    "answer": answer,
+                    "sources": "; ".join(sources),
+                }
+            )
+
+        write_csv_answers(output_csv, output_rows)
+        print(f"Saved answers to: {output_csv}")
         return
 
-    context = build_context(results, args.max_context_chars)
-
-    if args.show_context:
-        print("Retrieved context:")
-        print(context)
-        print()
-
-    if llm_mode == "openai":
-        answer = answer_with_openai(question, context, args.model, args.allow_general_answer)
-    else:
-        answer = answer_extractive(question, expanded_query, results, args.max_sentences)
+    question = user_input or input("Question: ").strip()
+    _expanded_query, answer, sources = answer_question(
+        question,
+        pages,
+        documents,
+        doc_vectors,
+        idf,
+        args,
+        llm_mode,
+    )
 
     print("Answer:")
     print(answer)
     print()
     print("Sources:")
-    for source in collect_sources(results):
+    for source in sources:
         print(f"- {source}")
 
 
