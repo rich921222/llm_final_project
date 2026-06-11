@@ -373,10 +373,13 @@ def rewrite_query_with_openai(question: str, model: str) -> str:
             {
                 "role": "system",
                 "content": (
-                    "Rewrite the user's question into a concise retrieval query for searching "
-                    "English NLP lecture slides. Preserve important names, dates, formulas, "
-                    "acronyms, and technical terms. Add likely English synonyms when useful. "
-                    "Return only the rewritten query, with no explanation."
+                    "Rewrite and expand the user's question into an English retrieval query for "
+                    "searching NLP lecture slides. Include important technical terms, acronyms, "
+                    "formal names, formulas, related concepts, and likely English synonyms that "
+                    "could appear in lecture slides, while avoiding unrelated broad terms. Then "
+                    "translate the expanded English retrieval query back into Traditional Chinese. "
+                    "Preserve important names, dates, formulas, acronyms, and technical terms. "
+                    "Return exactly this format with no explanation: English query | Chinese query"
                 ),
             },
             {
@@ -384,7 +387,7 @@ def rewrite_query_with_openai(question: str, model: str) -> str:
                 "content": question,
             },
         ],
-        max_output_tokens=120,
+        max_output_tokens=180,
     )
     rewritten_query = " ".join(response.output_text.split())
     return rewritten_query or question
@@ -395,7 +398,7 @@ def combine_retrieval_queries(original_query: str, rewritten_query: str) -> str:
     rewritten_query = " ".join(rewritten_query.split())
     if not rewritten_query or rewritten_query == original_query:
         return original_query
-    return f"{original_query} {rewritten_query}"
+    return f"{original_query} | {rewritten_query}"
 
 
 def retrieve(
