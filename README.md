@@ -103,7 +103,12 @@ input_answers.csv
 python rag_answer.py input.csv --llm openai --input_csv --output_csv result.csv
 ```
 
-課程資訊類問題會自動將 `c0_course_introduction.pdf` 前 6 頁加入 context，例如：
+課程資訊類問題會額外附上課程頁面給 GPT 參考，但不會插入 TF-IDF 排名，也不會被人工指定為高分。常見分流如下：
+
+- 老師、教授、email、評分、出席等課程資訊：額外附 `c0_course_introduction.pdf` page 1-6
+- 不用上課、放假、holiday、no class、schedule、syllabus 等時程問題：額外附 `c0_course_introduction.pdf` page 21-22
+
+例如：
 
 ```powershell
 python rag_answer.py "教這門課的人是誰"
@@ -111,7 +116,7 @@ python rag_answer.py "老師是誰"
 python rag_answer.py "期中考是幾月幾號？"
 ```
 
-這可以避免「老師 / 教授 / 教這門課的人」等不同說法找不到課程介紹頁。
+這可以避免「老師 / 教授 / 教這門課的人」等不同說法找不到課程介紹頁，也能讓「哪幾天不用上課」這類問題看到課程時程頁。
 
 ## 可選：使用 OpenAI API 生成自然語言回答
 
@@ -129,7 +134,7 @@ $env:OPENAI_API_KEY="your_api_key_here"
 python rag_answer.py "什麼是馬可夫鏈？" --llm openai
 ```
 
-使用 OpenAI 模式時，系統預設會先請 GPT 將原始問題改寫並擴張成英文檢索 query，補上可能出現在講義中的專有名詞、縮寫、正式名稱、公式、相關概念與英文同義詞，再將英文 query 回譯成中文。接著把「原始問題 | 英文擴張 query | 中文回譯」串聯後再進行講義檢索，最後把檢索到的講義內容交給 GPT 生成答案。這樣可以保留原始中文關鍵字，同時補上英文專有名詞與較正式的中文說法。
+使用 OpenAI 模式時，系統預設會先請 GPT 將原始問題改寫並擴張成英文檢索 query，補上可能出現在講義中的專有名詞、縮寫、正式名稱、公式、相關概念與英文同義詞，再將英文 query 回譯成中文。接著把「原始問題 | 英文擴張 query | 中文回譯」串聯，並經過內建 dictionary expand 與 translator 處理後再進行講義檢索，最後把檢索到的講義內容交給 GPT 生成答案。這樣可以保留原始中文關鍵字，同時補上英文專有名詞與較正式的中文說法。
 
 可顯示改寫後的 query：
 
